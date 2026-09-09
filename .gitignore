@@ -1,0 +1,8 @@
+node_modules/
+dist/
+tmp/
+.workbuddy/
+spike/
+*.log
+Thumbs.db
+.DS_Store

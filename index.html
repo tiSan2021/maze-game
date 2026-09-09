@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- E3 应用壳：仅桌面浏览器，纯键盘。Canvas 960×640 + 顶部 32px DOM HUD。 -->
+    <title>迷宫闯关 · 演示壳 (P5-S3-E3)</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: #f4f1ea;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      }
+      #app {
+        position: relative;
+        width: 960px;
+        margin: 0 auto;
+      }
+      /* HUD 容器：高度由 hud.ts 内联写入 HUD_H=32px（不占迷宫区高度） */
+      #hud {
+        box-sizing: border-box;
+      }
+      /* 迷宫画布：逻辑 960×640，主循环按 dpr 放大设备像素 */
+      #game {
+        display: block;
+        background: #f4f1ea;
+      }
+      /* 顶层状态覆盖层（MENU / LEVEL_SELECT / PAUSED / SETTLEMENT） */
+      #overlay {
+        position: absolute;
+        left: 0;
+        top: 32px;
+        width: 960px;
+        height: 640px;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        background: rgba(244, 241, 234, 0.94);
+        color: #2a2419;
+        text-align: center;
+        font-size: 18px;
+        line-height: 1.6;
+      }
+      #overlay h1 {
+        font-size: 30px;
+        margin: 0 0 8px;
+      }
+      #overlay .hint {
+        font-size: 14px;
+        color: #6b6152;
+      }
+      #overlay kbd {
+        background: #efe9dc;
+        border: 1px solid #c9bfa9;
+        border-radius: 4px;
+        padding: 1px 6px;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div id="hud"></div>
+      <canvas id="game" width="960" height="640"></canvas>
+      <div id="overlay"></div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

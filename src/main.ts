@@ -12,6 +12,7 @@ import { computeVisibility } from './sim/visibility';
 import type { EntityView } from './render/sprites';
 import { key } from './util/grid';
 import { KeyboardInput, dirOfKey } from './input/keyboard';
+import { mountTouchControls } from './input/touch';
 import { type StorageLike, MAIN_LEVEL_COUNT, bestOf, mainLevelId } from './sim/progress';
 import { renderSettlementHtml } from './ui/settlement';
 import { moveSelection, MAIN_SEL_COLS } from './ui/level-grid';
@@ -25,6 +26,7 @@ import { APP_NAME, VERSION_LABEL } from './version';
 const canvas = document.getElementById('game') as HTMLCanvasElement;
 const hudEl = document.getElementById('hud') as HTMLElement;
 const overlayEl = document.getElementById('overlay') as HTMLElement;
+const appEl = document.getElementById('app') as HTMLElement;
 
 const dpr = Math.max(1, Math.min(2, Math.floor(window.devicePixelRatio || 1)));
 canvas.width = CANVAS_W * dpr;
@@ -79,6 +81,18 @@ function loadPipeline(): void {
 
 // ── 输入装配（E6-2）：方向键/WASD 连走节奏由 KeyboardInput 自管 ──
 const input = new KeyboardInput({ now: () => performance.now() });
+
+// ── 移动端适配（阶段 A+B）──
+// A：画布逻辑尺寸固定 960×640，靠 CSS transform 整体缩放适配视口（逻辑坐标不动，内核零改动）。
+//    672 = 640 画布 + 32 顶部 HUD；不放大超过 1（避免模糊）。
+function fitToViewport(): void {
+  const s = Math.min(1, window.innerWidth / 960, window.innerHeight / 672);
+  appEl.style.transform = `translate(-50%, -50%) scale(${s})`;
+}
+window.addEventListener('resize', fitToViewport);
+fitToViewport();
+// B：触屏输入（仅触屏设备挂载；桌面返回空清理，纯键盘体验不变）
+mountTouchControls({ canvas, container: appEl, input, unlock: () => sfx.unlock() });
 let pendingAction: 'undo' | 'restart' | null = null;
 
 function onKey(e: KeyboardEvent): void {

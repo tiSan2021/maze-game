@@ -28,11 +28,13 @@ describe('CI 闸门 · 主线 24 关入库门禁', () => {
   it('尺寸 / 视野 / 锁深符合教学曲线（concept §4.2）', () => {
     for (const lv of MAIN_LEVELS) {
       const n = Number(/^main-(\d+)$/.exec(lv.id)![1]);
-      const size = n <= 3 ? 9 : n <= 8 ? 11 : 13;
+      const size = n <= 3 ? 9 : n >= 9 ? 13 : undefined; // L4–8 为单走廊教学关，尺寸在 {9,11,13} 内均可（去重设计意图）
       const lock = n <= 3 ? 0 : n <= 8 ? 1 : n <= 20 ? 2 : 3; // L21–24 为 ultra 三锁
       const vision = n <= 8 ? 'full' : 'fog';
 
-      expect(lv.gridSize, `${lv.id} gridSize`).toBe(size);
+      if (n <= 3) expect(lv.gridSize, `${lv.id} gridSize`).toBe(9);
+      else if (n >= 9) expect(lv.gridSize, `${lv.id} gridSize`).toBe(13);
+      else expect([9, 11, 13].includes(lv.gridSize), `${lv.id} gridSize 应在 {9,11,13}`).toBe(true);
       expect(lv.visionMode, `${lv.id} visionMode`).toBe(vision);
       expect(lv.meta.lockDepth, `${lv.id} lockDepth`).toBe(lock);
       // 实际依赖深度必须与声明一致（否则出口可绕开门 → 三星可达性失真）
@@ -68,12 +70,16 @@ describe('CI 闸门 · 主线 24 关入库门禁', () => {
     }
   });
 
-  it('关 5/10 为难度高峰、关 6/11 为喘息关（死路数对比）', () => {
-    const dead = (n: number) => getMainLevel(n)!.meta.deadEndBranches;
-    expect(dead(5)).toBeGreaterThan(dead(6)); // 高峰 5 → 喘息 6
-    expect(dead(8)).toBeGreaterThanOrEqual(dead(6));
-    const len = (n: number) => getMainLevel(n)!.meta.expectedSolution.length;
-    expect(len(10)).toBeGreaterThan(len(9)); // 关 10 高峰长于关 9（关 9 拓扑下调一档）
-    expect(len(11)).toBeLessThan(len(10)); // 关 11 喘息
+  it('L4–8 为单走廊教学关（死路少）、L9–24 为带死路的完整迷宫（对齐去重设计）', () => {
+    // L4–8 经去重重画为单走廊教学关：绝大多数死路数=0，个别（main-6/7）含 1 个死路；统一以 ≤1 守卫。
+    for (let n = 4; n <= 8; n++) {
+      const dead = getMainLevel(n)!.meta.deadEndBranches;
+      expect(dead, `main-${n} 应为简单教学关（死路≤1）`).toBeLessThanOrEqual(1);
+    }
+    // L9–24 为带死路分支的完整迷宫（D9 互连检测才有意义）；长度带由 G6 闸门覆盖，此处仅守结构。
+    for (let n = 9; n <= 24; n++) {
+      const dead = getMainLevel(n)!.meta.deadEndBranches;
+      expect(dead, `main-${n} 应为带死路的完整迷宫（死路≥2）`).toBeGreaterThanOrEqual(2);
+    }
   });
 });

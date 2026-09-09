@@ -471,9 +471,9 @@
           "wall",
           "wall",
           "wall",
+          "wall",
+          "wall",
           "floor",
-          "wall",
-          "wall",
           "wall"
         ],
         [
@@ -523,9 +523,9 @@
           "wall",
           "wall",
           "wall",
+          "wall",
+          "wall",
           "floor",
-          "wall",
-          "wall",
           "wall"
         ],
         [
@@ -563,8 +563,8 @@
           "floor",
           "floor",
           "floor",
-          "wall",
-          "wall",
+          "floor",
+          "floor",
           "wall"
         ],
         [
@@ -586,7 +586,7 @@
         "y": 1
       },
       "exit": {
-        "x": 7,
+        "x": 9,
         "y": 9
       },
       "keys": [
@@ -594,7 +594,7 @@
           "id": "k0",
           "color": 0,
           "pos": {
-            "x": 3,
+            "x": 5,
             "y": 1
           }
         }
@@ -604,8 +604,8 @@
           "id": "d0",
           "color": 0,
           "pos": {
-            "x": 3,
-            "y": 7
+            "x": 1,
+            "y": 8
           }
         }
       ],
@@ -614,7 +614,7 @@
         "lockDepth": 1,
         "keyCount": 1,
         "doorCount": 1,
-        "deadEndBranches": 4,
+        "deadEndBranches": 0,
         "expectedSolution": [
           "right",
           "right",
@@ -622,8 +622,12 @@
           "right",
           "right",
           "right",
+          "right",
+          "right",
           "down",
           "down",
+          "left",
+          "left",
           "left",
           "left",
           "left",
@@ -638,6 +642,8 @@
           "right",
           "right",
           "right",
+          "right",
+          "right",
           "down",
           "down",
           "left",
@@ -646,8 +652,12 @@
           "left",
           "left",
           "left",
+          "left",
+          "left",
           "down",
           "down",
+          "right",
+          "right",
           "right",
           "right",
           "right",
@@ -690,6 +700,34 @@
         ],
         [
           "wall",
+          "floor",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall"
+        ],
+        [
+          "wall",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "wall"
+        ],
+        [
+          "wall",
+          "wall",
+          "wall",
           "wall",
           "wall",
           "wall",
@@ -697,8 +735,6 @@
           "wall",
           "wall",
           "floor",
-          "wall",
-          "wall",
           "wall"
         ],
         [
@@ -748,35 +784,9 @@
           "wall",
           "wall",
           "wall",
-          "floor",
           "wall",
-          "wall",
-          "wall"
-        ],
-        [
           "wall",
           "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "wall"
-        ],
-        [
-          "wall",
-          "floor",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
           "wall"
         ],
         [
@@ -807,7 +817,7 @@
         ]
       ],
       "start": {
-        "x": 1,
+        "x": 9,
         "y": 1
       },
       "exit": {
@@ -819,7 +829,7 @@
           "id": "k0",
           "color": 0,
           "pos": {
-            "x": 3,
+            "x": 5,
             "y": 1
           }
         }
@@ -829,8 +839,8 @@
           "id": "d0",
           "color": 0,
           "pos": {
-            "x": 7,
-            "y": 7
+            "x": 1,
+            "y": 2
           }
         }
       ],
@@ -839,16 +849,10 @@
         "lockDepth": 1,
         "keyCount": 1,
         "doorCount": 1,
-        "deadEndBranches": 5,
+        "deadEndBranches": 0,
         "expectedSolution": [
-          "right",
-          "right",
-          "right",
-          "right",
-          "right",
-          "right",
-          "down",
-          "down",
+          "left",
+          "left",
           "left",
           "left",
           "left",
@@ -863,6 +867,8 @@
           "right",
           "right",
           "right",
+          "right",
+          "right",
           "down",
           "down",
           "left",
@@ -871,15 +877,35 @@
           "left",
           "left",
           "left",
+          "left",
+          "left",
           "down",
-          "down"
+          "down",
+          "right",
+          "right",
+          "right",
+          "right",
+          "right",
+          "right",
+          "right",
+          "right",
+          "down",
+          "down",
+          "left",
+          "left",
+          "left",
+          "left",
+          "left",
+          "left",
+          "left",
+          "left"
         ]
       }
     },
     {
       "schemaVersion": 1,
       "id": "main-6",
-      "gridSize": 11,
+      "gridSize": 9,
       "grid": [
         [
           "wall",
@@ -890,14 +916,10 @@
           "wall",
           "wall",
           "wall",
-          "wall",
-          "wall",
           "wall"
         ],
         [
           "wall",
-          "floor",
-          "floor",
           "floor",
           "floor",
           "floor",
@@ -916,66 +938,10 @@
           "wall",
           "wall",
           "floor",
-          "wall",
-          "wall",
           "wall"
         ],
         [
           "wall",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "wall"
-        ],
-        [
-          "wall",
-          "floor",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall"
-        ],
-        [
-          "wall",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "wall"
-        ],
-        [
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "floor",
-          "wall",
-          "wall",
-          "wall"
-        ],
-        [
-          "wall",
-          "floor",
-          "floor",
           "floor",
           "floor",
           "floor",
@@ -994,137 +960,10 @@
           "wall",
           "wall",
           "wall",
-          "wall",
-          "wall",
           "wall"
         ],
         [
           "wall",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "wall"
-        ],
-        [
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall"
-        ]
-      ],
-      "start": {
-        "x": 1,
-        "y": 1
-      },
-      "exit": {
-        "x": 9,
-        "y": 9
-      },
-      "keys": [
-        {
-          "id": "k0",
-          "color": 0,
-          "pos": {
-            "x": 3,
-            "y": 1
-          }
-        }
-      ],
-      "doors": [
-        {
-          "id": "d0",
-          "color": 0,
-          "pos": {
-            "x": 5,
-            "y": 7
-          }
-        }
-      ],
-      "visionMode": "full",
-      "meta": {
-        "lockDepth": 1,
-        "keyCount": 1,
-        "doorCount": 1,
-        "deadEndBranches": 4,
-        "expectedSolution": [
-          "right",
-          "right",
-          "right",
-          "right",
-          "right",
-          "right",
-          "down",
-          "down",
-          "left",
-          "left",
-          "left",
-          "left",
-          "left",
-          "left",
-          "down",
-          "down",
-          "right",
-          "right",
-          "right",
-          "right",
-          "right",
-          "right",
-          "down",
-          "down",
-          "left",
-          "left",
-          "left",
-          "left",
-          "left",
-          "left",
-          "down",
-          "down",
-          "right",
-          "right",
-          "right",
-          "right",
-          "right",
-          "right",
-          "right",
-          "right"
-        ]
-      }
-    },
-    {
-      "schemaVersion": 1,
-      "id": "main-7",
-      "gridSize": 11,
-      "grid": [
-        [
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall"
-        ],
-        [
-          "wall",
-          "floor",
-          "floor",
           "floor",
           "floor",
           "floor",
@@ -1143,8 +982,6 @@
           "wall",
           "wall",
           "floor",
-          "wall",
-          "wall",
           "wall"
         ],
         [
@@ -1156,91 +993,9 @@
           "floor",
           "floor",
           "floor",
-          "floor",
-          "floor",
           "wall"
         ],
         [
-          "wall",
-          "floor",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall"
-        ],
-        [
-          "wall",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "wall"
-        ],
-        [
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "floor",
-          "wall",
-          "wall",
-          "wall"
-        ],
-        [
-          "wall",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "wall"
-        ],
-        [
-          "wall",
-          "floor",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall"
-        ],
-        [
-          "wall",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "wall",
-          "wall",
-          "wall"
-        ],
-        [
-          "wall",
-          "wall",
           "wall",
           "wall",
           "wall",
@@ -1258,14 +1013,14 @@
       },
       "exit": {
         "x": 7,
-        "y": 9
+        "y": 7
       },
       "keys": [
         {
           "id": "k0",
           "color": 0,
           "pos": {
-            "x": 3,
+            "x": 4,
             "y": 1
           }
         }
@@ -1275,8 +1030,8 @@
           "id": "d0",
           "color": 0,
           "pos": {
-            "x": 1,
-            "y": 7
+            "x": 7,
+            "y": 6
           }
         }
       ],
@@ -1285,7 +1040,7 @@
         "lockDepth": 1,
         "keyCount": 1,
         "doorCount": 1,
-        "deadEndBranches": 4,
+        "deadEndBranches": 1,
         "expectedSolution": [
           "right",
           "right",
@@ -1310,6 +1065,257 @@
           "right",
           "right",
           "down",
+          "down"
+        ]
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "main-7",
+      "gridSize": 13,
+      "grid": [
+        [
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall"
+        ],
+        [
+          "wall",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "wall"
+        ],
+        [
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "floor",
+          "wall"
+        ],
+        [
+          "wall",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "wall"
+        ],
+        [
+          "wall",
+          "floor",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall"
+        ],
+        [
+          "wall",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "wall"
+        ],
+        [
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "floor",
+          "wall"
+        ],
+        [
+          "wall",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "wall"
+        ],
+        [
+          "wall",
+          "floor",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall"
+        ],
+        [
+          "wall",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "wall"
+        ],
+        [
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "floor",
+          "wall"
+        ],
+        [
+          "wall",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "wall"
+        ],
+        [
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall"
+        ]
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "exit": {
+        "x": 11,
+        "y": 11
+      },
+      "keys": [
+        {
+          "id": "k0",
+          "color": 0,
+          "pos": {
+            "x": 6,
+            "y": 1
+          }
+        }
+      ],
+      "doors": [
+        {
+          "id": "d0",
+          "color": 0,
+          "pos": {
+            "x": 11,
+            "y": 10
+          }
+        }
+      ],
+      "visionMode": "full",
+      "meta": {
+        "lockDepth": 1,
+        "keyCount": 1,
+        "doorCount": 1,
+        "deadEndBranches": 1,
+        "expectedSolution": [
+          "right",
+          "right",
+          "right",
+          "right",
+          "right",
+          "right",
+          "right",
+          "right",
+          "right",
+          "right",
+          "down",
           "down",
           "left",
           "left",
@@ -1317,6 +1323,10 @@
           "left",
           "left",
           "left",
+          "left",
+          "left",
+          "left",
+          "left",
           "down",
           "down",
           "right",
@@ -1324,7 +1334,37 @@
           "right",
           "right",
           "right",
-          "right"
+          "right",
+          "right",
+          "right",
+          "right",
+          "right",
+          "down",
+          "down",
+          "left",
+          "left",
+          "left",
+          "left",
+          "left",
+          "left",
+          "left",
+          "left",
+          "left",
+          "left",
+          "down",
+          "down",
+          "right",
+          "right",
+          "right",
+          "right",
+          "right",
+          "right",
+          "right",
+          "right",
+          "right",
+          "right",
+          "down",
+          "down"
         ]
       }
     },
@@ -1361,6 +1401,34 @@
         ],
         [
           "wall",
+          "floor",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall"
+        ],
+        [
+          "wall",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "wall"
+        ],
+        [
+          "wall",
+          "wall",
+          "wall",
           "wall",
           "wall",
           "wall",
@@ -1368,8 +1436,6 @@
           "wall",
           "wall",
           "floor",
-          "wall",
-          "wall",
           "wall"
         ],
         [
@@ -1419,35 +1485,9 @@
           "wall",
           "wall",
           "wall",
-          "floor",
           "wall",
-          "wall",
-          "wall"
-        ],
-        [
           "wall",
           "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "wall"
-        ],
-        [
-          "wall",
-          "floor",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
           "wall"
         ],
         [
@@ -1478,11 +1518,11 @@
         ]
       ],
       "start": {
-        "x": 1,
+        "x": 9,
         "y": 1
       },
       "exit": {
-        "x": 9,
+        "x": 1,
         "y": 9
       },
       "keys": [
@@ -1490,7 +1530,7 @@
           "id": "k0",
           "color": 0,
           "pos": {
-            "x": 7,
+            "x": 5,
             "y": 1
           }
         }
@@ -1500,8 +1540,8 @@
           "id": "d0",
           "color": 0,
           "pos": {
-            "x": 4,
-            "y": 7
+            "x": 1,
+            "y": 6
           }
         }
       ],
@@ -1510,32 +1550,10 @@
         "lockDepth": 1,
         "keyCount": 1,
         "doorCount": 1,
-        "deadEndBranches": 4,
+        "deadEndBranches": 0,
         "expectedSolution": [
-          "right",
-          "right",
-          "right",
-          "right",
-          "right",
-          "right",
-          "down",
-          "down",
           "left",
           "left",
-          "left",
-          "left",
-          "left",
-          "left",
-          "down",
-          "down",
-          "right",
-          "right",
-          "right",
-          "right",
-          "right",
-          "right",
-          "down",
-          "down",
           "left",
           "left",
           "left",
@@ -1551,7 +1569,37 @@
           "right",
           "right",
           "right",
-          "right"
+          "right",
+          "down",
+          "down",
+          "left",
+          "left",
+          "left",
+          "left",
+          "left",
+          "left",
+          "left",
+          "left",
+          "down",
+          "down",
+          "right",
+          "right",
+          "right",
+          "right",
+          "right",
+          "right",
+          "right",
+          "right",
+          "down",
+          "down",
+          "left",
+          "left",
+          "left",
+          "left",
+          "left",
+          "left",
+          "left",
+          "left"
         ]
       }
     },

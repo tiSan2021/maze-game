@@ -46,6 +46,48 @@ type HandMap = {
   expectedLockDepth: 0 | 1;
 };
 
+// 由参数生成「单一走廊蛇形」手工图：所有地板格都在解路径上 → 天然满足 D9/死路=0/G3；
+// 门 A 钉在某段唯一竖向咽喉，关 A 时 S 到不了 E → lockDepth=1。
+// 通过 size / startSide / doorGap / 起终点 区分各关观感，避免骨架雷同。
+function boustrophedon(opts: {
+  id: string;
+  size: 9 | 11 | 13;
+  startSide: 'L' | 'R';
+  doorGap: number;
+  start: [number, number];
+  exit: [number, number];
+  key: [number, number];
+}): HandMap {
+  const { size } = opts;
+  const corridors: number[] = [];
+  for (let y = 1; y <= size - 2; y += 2) corridors.push(y);
+  const nGaps = corridors.length - 1;
+  const colR = size - 2;
+  const colL = 1;
+  const grid: string[][] = Array.from({ length: size }, () => new Array<string>(size).fill('#'));
+
+  for (const y of corridors) for (let x = 1; x <= size - 2; x++) grid[y][x] = '.';
+  const gapCol = (i: number) =>
+    opts.startSide === 'R' ? (i % 2 === 0 ? colR : colL) : (i % 2 === 0 ? colL : colR);
+  for (let i = 0; i < nGaps; i++) {
+    const col = gapCol(i);
+    for (let y = corridors[i] + 1; y < corridors[i + 1]; y++) grid[y][col] = '.';
+  }
+
+  const [sx, sy] = opts.start;
+  grid[sy][sx] = 'S';
+  const [ex, ey] = opts.exit;
+  grid[ey][ex] = 'E';
+  const [kx, ky] = opts.key;
+  grid[ky][kx] = 'a';
+  const dcol = gapCol(opts.doorGap);
+  const yTop = corridors[opts.doorGap];
+  const yBot = corridors[opts.doorGap + 1];
+  grid[Math.floor((yTop + yBot) / 2)][dcol] = 'A';
+
+  return { id: opts.id, gridSize: size, visionMode: 'full', expectedLockDepth: 1, rows: grid.map((r) => r.join('')) };
+}
+
 const L1_8: HandMap[] = [
   // 关 1–3：9×9 全览，0 钥匙 0 门（教学：走 + 省）。三关走法各不相同。
   {
@@ -102,108 +144,13 @@ const L1_8: HandMap[] = [
       '#########',
     ],
   },
-  // 关 4–8：11×11 全览，1 钥匙 1 门（lockDepth=1，同色 K2 1:1）。
-  // 门 A 一律钉在「上下区域唯一连通走廊」(row7 全开走廊) 上，关 A 时 S 到不了 E → 锁深=1；
-  // a 放在起点区(row1)，开门前即可取。五关通过门列 / 钥匙位 / 起终点 / 折返侧 区分。
-  {
-    id: 'main-4',
-    gridSize: 11,
-    visionMode: 'full',
-    expectedLockDepth: 1,
-    rows: [
-      '###########',
-      '#S.a......#',
-      '#######.###',
-      '#.........#',
-      '#.#########',
-      '#.........#',
-      '#######.###',
-      '#..A......#',
-      '#.#########',
-      '#......E###',
-      '###########',
-    ],
-  },
-  {
-    id: 'main-5',
-    gridSize: 11,
-    visionMode: 'full',
-    expectedLockDepth: 1,
-    // 门移到 row7 右侧(col7)，终左下，与 main-4 区分
-    rows: [
-      '###########',
-      '#S.a......#',
-      '#######.###',
-      '#.........#',
-      '#.#########',
-      '#.........#',
-      '#######.###',
-      '#......A..#',
-      '#.#########',
-      '#E........#',
-      '###########',
-    ],
-  },
-  {
-    id: 'main-6',
-    gridSize: 11,
-    visionMode: 'full',
-    expectedLockDepth: 1,
-    // 门居中(col5)，终右下
-    rows: [
-      '###########',
-      '#S.a......#',
-      '#######.###',
-      '#.........#',
-      '#.#########',
-      '#.........#',
-      '#######.###',
-      '#....A....#',
-      '#.#########',
-      '#........E#',
-      '###########',
-    ],
-  },
-  {
-    id: 'main-7',
-    gridSize: 11,
-    visionMode: 'full',
-    expectedLockDepth: 1,
-    // 门在 row7 左端(col1)，终中下
-    rows: [
-      '###########',
-      '#S.a......#',
-      '#######.###',
-      '#.........#',
-      '#.#########',
-      '#.........#',
-      '#######.###',
-      '#A........#',
-      '#.#########',
-      '#......E###',
-      '###########',
-    ],
-  },
-  {
-    id: 'main-8',
-    gridSize: 11,
-    visionMode: 'full',
-    expectedLockDepth: 1,
-    // 折返侧改到左侧(col1 连通)，门 col3，终左下，结构与其他 4 关明显不同
-    rows: [
-      '###########',
-      '#S.....a..#',
-      '#######.###',
-      '#.........#',
-      '#.#########',
-      '#.........#',
-      '#######.###',
-      '#...A.....#',
-      '#.#########',
-      '#........E#',
-      '###########',
-    ],
-  },
+  // 关 4–8：单一走廊蛇形，1 钥匙 1 门（lockDepth=1）。
+  // 五关通过 size(9/11/13) / 镜像方向(L/R) / 门高(doorGap) / 起终点 区分，观感明显不同。
+  boustrophedon({ id: 'main-4', size: 11, startSide: 'R', doorGap: 3, start: [1, 1], exit: [9, 9], key: [5, 1] }),
+  boustrophedon({ id: 'main-5', size: 11, startSide: 'L', doorGap: 0, start: [9, 1], exit: [1, 9], key: [5, 1] }),
+  boustrophedon({ id: 'main-6', size: 9, startSide: 'R', doorGap: 2, start: [1, 1], exit: [7, 7], key: [4, 1] }),
+  boustrophedon({ id: 'main-7', size: 13, startSide: 'R', doorGap: 4, start: [1, 1], exit: [11, 11], key: [6, 1] }),
+  boustrophedon({ id: 'main-8', size: 11, startSide: 'L', doorGap: 2, start: [9, 1], exit: [1, 9], key: [5, 1] }),
 ];
 
 // ---------------------------------------------------------------------------

@@ -10,6 +10,8 @@ import {
   saveSettings,
   nextMotionScale,
   motionLabel,
+  nextUiScale,
+  uiScaleLabel,
 } from '../../src/state/settings';
 import { createMemoryStorage } from '../../src/sim/progress';
 
@@ -18,11 +20,12 @@ describe('settings · 读写一致', () => {
     expect(DEFAULT_SETTINGS.version).toBe(SETTINGS_SCHEMA_VERSION);
     expect(DEFAULT_SETTINGS.fogOff).toBe(false);
     expect(DEFAULT_SETTINGS.motionScale).toBe(1);
+    expect(DEFAULT_SETTINGS.uiScale).toBe(1);
   });
 
   it('写入 → 读回一致（含 fogOff / motionScale 两开关）', () => {
     const storage = createMemoryStorage();
-    const s = { version: SETTINGS_SCHEMA_VERSION, motionScale: 0.5 as const, fogOff: true };
+    const s = { version: SETTINGS_SCHEMA_VERSION, motionScale: 0.5 as const, fogOff: true, uiScale: 1.25 as const };
     expect(saveSettings(storage, s)).toBe(true);
     expect(loadSettings(storage)).toEqual(s);
     expect(storage.getItem(SETTINGS_STORAGE_KEY)).toContain('"version":1');
@@ -61,5 +64,39 @@ describe('settings · 动效档位循环（M2）', () => {
     expect(motionLabel(1)).toBe('全开');
     expect(motionLabel(0.5)).toBe('半量');
     expect(motionLabel(0)).toBe('关闭');
+  });
+});
+
+describe('settings · 字号三档（U5）', () => {
+  it('标准 → 大 → 特大 → 标准', () => {
+    expect(nextUiScale(1)).toBe(1.25);
+    expect(nextUiScale(1.25)).toBe(1.5);
+    expect(nextUiScale(1.5)).toBe(1);
+  });
+
+  it('标签映射：1=标准 / 1.25=大 / 1.5=特大', () => {
+    expect(uiScaleLabel(1)).toBe('标准');
+    expect(uiScaleLabel(1.25)).toBe('大');
+    expect(uiScaleLabel(1.5)).toBe('特大');
+  });
+
+  it('旧存档无 uiScale 字段 → 回落标准档（向后兼容，不重置其它项）', () => {
+    const loaded = loadSettings(
+      createMemoryStorage({
+        [SETTINGS_STORAGE_KEY]: JSON.stringify({ version: 1, motionScale: 0.5, fogOff: true }),
+      }),
+    );
+    expect(loaded.uiScale).toBe(1);
+    expect(loaded.fogOff).toBe(true);
+    expect(loaded.motionScale).toBe(0.5);
+  });
+
+  it('非法 uiScale（如 3）→ 回落标准档', () => {
+    const loaded = loadSettings(
+      createMemoryStorage({
+        [SETTINGS_STORAGE_KEY]: JSON.stringify({ version: 1, motionScale: 1, fogOff: false, uiScale: 3 }),
+      }),
+    );
+    expect(loaded.uiScale).toBe(1);
   });
 });

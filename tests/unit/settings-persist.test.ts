@@ -39,24 +39,26 @@ describe('settings · 存储不可用降级', () => {
 describe('settings · 两开关字段相互独立且持久化', () => {
   it('fogOff=true 写入后读回仍为 true，且 motionScale 不被改动', () => {
     const storage = createMemoryStorage();
-    const s = { version: SETTINGS_SCHEMA_VERSION, motionScale: 1 as const, fogOff: true };
+    const s = { version: SETTINGS_SCHEMA_VERSION, motionScale: 1 as const, fogOff: true, uiScale: 1.25 as const };
     expect(saveSettings(storage, s)).toBe(true);
     const back = loadSettings(storage);
     expect(back.fogOff).toBe(true);
     expect(back.motionScale).toBe(1);
+    expect(back.uiScale).toBe(1.25);
   });
 
   it('独立演进：改 motionScale 后 fogOff 仍保持（互不影响）', () => {
     const storage = createMemoryStorage();
     // 先写入 fogOff=true、motionScale=1
-    expect(saveSettings(storage, { version: SETTINGS_SCHEMA_VERSION, motionScale: 1, fogOff: true })).toBe(true);
+    expect(saveSettings(storage, { version: SETTINGS_SCHEMA_VERSION, motionScale: 1, fogOff: true, uiScale: 1.25 })).toBe(true);
     // 仅切动效档位后再次写入
     const next = nextMotionScale(loadSettings(storage).motionScale); // 1 → 0.5
-    expect(saveSettings(storage, { version: SETTINGS_SCHEMA_VERSION, motionScale: next, fogOff: true })).toBe(true);
+    expect(saveSettings(storage, { version: SETTINGS_SCHEMA_VERSION, motionScale: next, fogOff: true, uiScale: 1.25 })).toBe(true);
 
     const back = loadSettings(storage);
     expect(back.fogOff).toBe(true); // 雾开关保持
     expect(back.motionScale).toBe(0.5); // 动效档位演进
+    expect(back.uiScale).toBe(1.25); // 字号档位不被其它开关改动
     expect(back.version).toBe(SETTINGS_SCHEMA_VERSION);
     expect(JSON.parse(storage.getItem(SETTINGS_STORAGE_KEY)!).fogOff).toBe(true);
   });

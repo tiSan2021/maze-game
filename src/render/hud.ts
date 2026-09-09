@@ -56,7 +56,7 @@ export function renderHudHtml(m: HudModel): string {
   const hint = `<span style="color:#A89878">Z 撤销 · R 重开 · Esc 返回</span>`;
 
   const legend = m.fog
-    ? `<span style="margin-left:12px;font-size:11px;">图例:` +
+    ? `<span style="margin-left:12px;font-size:calc(11px * var(--ui-scale));">图例:` +
       `<span style="color:#A89878">■见过</span> ` +
       `<span style="color:#CFC5B0">■走过</span> ` +
       `<span style="color:#E4DCCE;border:1px solid #999">■未知</span></span>`
@@ -65,7 +65,7 @@ export function renderHudHtml(m: HudModel): string {
   return (
     `<div class="hud" role="status" aria-live="polite" aria-label="关卡状态" ` +
     `style="height:${HUD_H}px;display:flex;align-items:center;justify-content:space-between;` +
-    `padding:0 12px;background:#EFEADC;border-bottom:1.5px solid #C9BFA9;font-family:system-ui,sans-serif;font-size:13px;color:#2A2419;">` +
+    `padding:0 12px;background:#EFEADC;border-bottom:1.5px solid #C9BFA9;font-family:system-ui,sans-serif;font-size:calc(13px * var(--ui-scale));color:#2A2419;">` +
     `<span>关卡 ${m.levelLabel ?? m.levelId}</span>` +
     `<span>${fmtTime(m.timeMs)}</span>` +
     `<span>步数 ${m.steps} · 钥匙 ${swatches} (${m.keysHeld.length}/${m.totalKeys})</span>` +

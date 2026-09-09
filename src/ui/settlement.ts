@@ -50,7 +50,7 @@ export function renderSettlementHtml(m: SettlementModel): string {
   return [
     '<h1>通关！</h1>',
     label,
-    `<div style="font-size:28px;letter-spacing:4px">${stars}</div>`,
+    `<div style="font-size:calc(28px * var(--ui-scale));letter-spacing:4px">${stars}</div>`,
     `<div class="hint">共 ${m.segmentCount} 段 · ${backtrackText}</div>`,
     `<div class="hint">步数 ${m.steps} · 用时 ${formatDuration(m.elapsedMs)}</div>`,
     bestText ? `<div class="hint">${bestText}</div>` : '',

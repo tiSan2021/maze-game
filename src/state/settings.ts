@@ -9,8 +9,14 @@ import type { MotionScale } from '../core/constants/motion';
 
 export type { MotionScale };
 
+/** 字号档位（U5）：CSS `--ui-scale` 乘数。1=标准 / 1.25=大 / 1.5=特大（基准 ≥14px）。 */
+export type UiScale = 1 | 1.25 | 1.5;
+
 export const SETTINGS_SCHEMA_VERSION = 1;
 export const SETTINGS_STORAGE_KEY = 'maze.settings';
+
+/** 默认字号档位（U5） */
+export const DEFAULT_UI_SCALE: UiScale = 1;
 
 export interface A11ySettings {
   version: number;
@@ -18,12 +24,15 @@ export interface A11ySettings {
   motionScale: MotionScale;
   /** 关闭迷雾（F5）：复用关 1–8 全烘焙路径；不改 visible/visited/path，不影响星级 */
   fogOff: boolean;
+  /** 字号三档（U5）：CSS `--ui-scale` 乘数 1 / 1.25 / 1.5；只缩放 DOM 文本，不改玩法与判定 */
+  uiScale: UiScale;
 }
 
 export const DEFAULT_SETTINGS: A11ySettings = {
   version: SETTINGS_SCHEMA_VERSION,
   motionScale: DEFAULT_MOTION_SCALE,
   fogOff: false,
+  uiScale: DEFAULT_UI_SCALE,
 };
 
 const MOTION_CYCLE: MotionScale[] = [1, 0.5, 0];
@@ -36,6 +45,22 @@ export function nextMotionScale(cur: MotionScale): MotionScale {
 
 export function motionLabel(s: MotionScale): string {
   return s === 1 ? '全开' : s === 0.5 ? '半量' : '关闭';
+}
+
+const UI_SCALE_CYCLE: UiScale[] = [1, 1.25, 1.5];
+
+/** 字号档位循环（U5）：标准 → 大 → 特大 → 标准 */
+export function nextUiScale(cur: UiScale): UiScale {
+  const i = UI_SCALE_CYCLE.indexOf(cur);
+  return UI_SCALE_CYCLE[(i + 1) % UI_SCALE_CYCLE.length];
+}
+
+export function uiScaleLabel(s: UiScale): string {
+  return s === 1 ? '标准' : s === 1.25 ? '大' : '特大';
+}
+
+function isUiScale(v: unknown): v is UiScale {
+  return v === 1 || v === 1.25 || v === 1.5;
 }
 
 function isMotionScale(v: unknown): v is MotionScale {
@@ -60,6 +85,7 @@ export function loadSettings(storage: StorageLike | null | undefined): A11ySetti
       version: SETTINGS_SCHEMA_VERSION,
       motionScale: isMotionScale(parsed.motionScale) ? parsed.motionScale : DEFAULT_MOTION_SCALE,
       fogOff: typeof parsed.fogOff === 'boolean' ? parsed.fogOff : false,
+      uiScale: isUiScale(parsed.uiScale) ? parsed.uiScale : DEFAULT_UI_SCALE,
     };
   } catch {
     return { ...DEFAULT_SETTINGS };

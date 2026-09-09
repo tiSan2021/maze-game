@@ -4,8 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- E3 应用壳：仅桌面浏览器，纯键盘。Canvas 960×640 + 顶部 32px DOM HUD。 -->
-    <title>迷宫闯关 · 演示壳 (P5-S3-E3)</title>
+    <title>迷宫闯关</title>
     <style>
+      /* U5 字号三档：全局乘数，由 src/main.ts 写入；默认 1（标准） */
+      :root {
+        --ui-scale: 1;
+      }
       html,
       body {
         margin: 0;
@@ -42,23 +46,24 @@
         background: rgba(244, 241, 234, 0.94);
         color: #2a2419;
         text-align: center;
-        font-size: 18px;
+        font-size: calc(18px * var(--ui-scale));
         line-height: 1.6;
       }
       #overlay h1 {
-        font-size: 30px;
+        font-size: calc(30px * var(--ui-scale));
         margin: 0 0 8px;
       }
       #overlay .hint {
         font-size: 14px;
         color: #6b6152;
+        font-size: calc(14px * var(--ui-scale));
       }
       #overlay kbd {
         background: #efe9dc;
         border: 1px solid #c9bfa9;
         border-radius: 4px;
         padding: 1px 6px;
-        font-size: 13px;
+        font-size: calc(13px * var(--ui-scale));
       }
     </style>
   </head>

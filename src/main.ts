@@ -16,7 +16,7 @@ import { type StorageLike, MAIN_LEVEL_COUNT } from './sim/progress';
 import { renderSettlementHtml } from './ui/settlement';
 import { moveSelection, MAIN_SEL_COLS } from './ui/level-grid';
 import { AppMachine, formatLevelLabel } from './state/app';
-import { loadSettings, saveSettings, nextMotionScale, motionLabel } from './state/settings';
+import { loadSettings, saveSettings, nextMotionScale, motionLabel, nextUiScale, uiScaleLabel } from './state/settings';
 import { SfxEngine } from './audio/sfx';
 
 // ── DOM 装配 ──
@@ -54,6 +54,12 @@ const app = new AppMachine({ storage });
 let settings = loadSettings(storage);
 /** 设置面板是否显示（MENU / PAUSED 内可开，Esc 关闭） */
 let showSettings = false;
+
+/** 把字号档位写入 CSS 变量（U5）：作用于 overlay / HUD / 结算面板的 DOM 文本 */
+function applyUiScale(): void {
+  document.documentElement.style.setProperty('--ui-scale', String(settings.uiScale));
+}
+applyUiScale(); // 启动即套用持久化档位
 // 音效引擎（Phase 6 后续功能）：合成短音 + 静音开关，持久化同存档介质
 const sfx = new SfxEngine({ storage });
 let pipe: RenderPipeline | null = null;
@@ -79,7 +85,7 @@ function onKey(e: KeyboardEvent): void {
   if (e.repeat) return; // 禁用 OS 长按自动重复（M2 前置；E6 接管连走节奏）
   sfx.unlock(); // 首个用户手势内创建/恢复 AudioContext（浏览器策略要求）
 
-  // 设置面板优先拦截（仅在 MENU / PAUSED 可开；见下方 S 触发）：F 切迷雾、M 切动效、X 切静音、Esc 关闭
+  // 设置面板优先拦截（仅在 MENU / PAUSED 可开；见下方 S 触发）：F 切迷雾、M 切动效、T 切字号、X 切静音、Esc 关闭
   if (showSettings) {
     if (k === 'f' || k === 'F') {
       settings.fogOff = !settings.fogOff;
@@ -88,6 +94,10 @@ function onKey(e: KeyboardEvent): void {
     } else if (k === 'm' || k === 'M') {
       settings.motionScale = nextMotionScale(settings.motionScale);
       saveSettings(storage, settings);
+    } else if (k === 't' || k === 'T') {
+      settings.uiScale = nextUiScale(settings.uiScale);
+      saveSettings(storage, settings);
+      applyUiScale();
     } else if (k === 'x' || k === 'X') {
       sfx.toggleMute(); // 静音偏好由 SfxEngine 自行持久化
     } else if (k === 'Escape') {
@@ -198,10 +208,12 @@ function settingsHtml(): string {
   const motion = motionLabel(settings.motionScale);
   const fog = settings.fogOff ? '已关闭' : '开启中';
   const sound = sfx.isMuted ? '静音' : '开启';
+  const ui = uiScaleLabel(settings.uiScale);
   return `<h1>可访问性设置</h1>
     <div style="line-height:1.9;text-align:left;max-width:440px;margin:8px auto">
       <div>减少动效（M2）：<kbd>M</kbd> 切换 · 当前 <b>${motion}</b></div>
       <div>迷雾（F5）：<kbd>F</kbd> 切换 · 当前 <b>${fog}</b></div>
+      <div>字号（U5）：<kbd>T</kbd> 切换 · 当前 <b>${ui}</b></div>
       <div>音效：<kbd>X</kbd> 切换 · 当前 <b>${sound}</b></div>
     </div>
     <div class="hint">两项关闭后信息仍完整可见（图案填充 / 钥匙双编码 / 对比度不依赖它们）。<kbd>Esc</kbd> 返回</div>`;

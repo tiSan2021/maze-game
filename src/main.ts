@@ -191,6 +191,12 @@ window.addEventListener('blur', () => {
   input.blur();
   pendingAction = null;
 });
+// 移动端（阶段 D）：页面切后台 / 锁屏 / 切应用时自动暂停，避免计时与移动在后台继续
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && app.state === 'PLAYING') app.pause();
+});
+// 移动端长按不弹系统右键菜单（阶段 D）
+appEl.addEventListener('contextmenu', (e: Event) => e.preventDefault());
 
 // ── 覆盖层事件委托（阶段 C）：把可点按钮的点击统一路由到与键盘一致的状态迁移 ──
 function handleOverlayAction(action: string | undefined, ds: DOMStringMap): void {

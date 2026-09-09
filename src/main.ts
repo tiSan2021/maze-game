@@ -92,13 +92,22 @@ function fitToViewport(): void {
 window.addEventListener('resize', fitToViewport);
 fitToViewport();
 // B：触屏输入（仅触屏设备挂载；桌面返回空清理，纯键盘体验不变）
-mountTouchControls({ canvas, container: appEl, input, unlock: () => sfx.unlock() });
+const touchCtl = mountTouchControls({
+  canvas,
+  container: appEl,
+  input,
+  unlock: () => sfx.unlock(),
+  onPause: () => app.pause(),
+});
 let pendingAction: 'undo' | 'restart' | null = null;
 
 function onKey(e: KeyboardEvent): void {
   const k = e.key;
   if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(k)) e.preventDefault();
   if (e.repeat) return; // 禁用 OS 长按自动重复（M2 前置；E6 接管连走节奏）
+  // 覆盖层按钮已聚焦时（触屏点过后），按 Enter/Space 改由按钮自身 click 接管，避免与全局键盘双重触发
+  const activeEl = document.activeElement as HTMLElement | null;
+  if (activeEl && activeEl.tagName === 'BUTTON' && overlayEl.contains(activeEl)) return;
   sfx.unlock(); // 首个用户手势内创建/恢复 AudioContext（浏览器策略要求）
 
   // 设置面板优先拦截（仅在 MENU / PAUSED 可开；见下方 S 触发）：F 切迷雾、M 切动效、T 切字号、X 切静音、Esc 关闭
@@ -183,6 +192,86 @@ window.addEventListener('blur', () => {
   pendingAction = null;
 });
 
+// ── 覆盖层事件委托（阶段 C）：把可点按钮的点击统一路由到与键盘一致的状态迁移 ──
+function handleOverlayAction(action: string | undefined, ds: DOMStringMap): void {
+  if (!action) return;
+  sfx.unlock();
+  switch (action) {
+    case 'menu-start':
+      app.goToLevelSelect();
+      break;
+    case 'menu-settings':
+      showSettings = true;
+      break;
+    case 'lvl-select': {
+      const n = Number(ds.n);
+      if (n && app.enterMainLevel(n)) loadPipeline();
+      break;
+    }
+    case 'lvl-daily': {
+      const tier = ds.tier === 'high' ? 'high' : 'mid';
+      if (app.enterDaily(tier)) loadPipeline();
+      break;
+    }
+    case 'lvl-back':
+      app.goToMenu();
+      break;
+    case 'set-resume':
+      app.resume();
+      break;
+    case 'set-restart':
+      app.restart();
+      break;
+    case 'set-menu':
+      app.goToLevelSelect();
+      break;
+    case 'set-settings':
+      showSettings = true;
+      break;
+    case 'settle-replay':
+      app.replay();
+      break;
+    case 'settle-next': {
+      const nl = app.nextMainLevel();
+      if (nl) {
+        app.nextLevel(nl);
+        loadPipeline();
+      }
+      break;
+    }
+    case 'settle-select':
+      app.settleToSelect();
+      break;
+    case 'settings-close':
+      showSettings = false;
+      break;
+    case 'settings-f':
+      settings.fogOff = !settings.fogOff;
+      saveSettings(storage, settings);
+      loadPipeline();
+      break;
+    case 'settings-m':
+      settings.motionScale = nextMotionScale(settings.motionScale);
+      saveSettings(storage, settings);
+      break;
+    case 'settings-t':
+      settings.uiScale = nextUiScale(settings.uiScale);
+      saveSettings(storage, settings);
+      applyUiScale();
+      break;
+    case 'settings-x':
+      sfx.toggleMute();
+      break;
+  }
+}
+overlayEl.addEventListener('click', (e: MouseEvent) => {
+  const t = e.target as HTMLElement;
+  const btn = t.closest('[data-action]') as HTMLElement | null;
+  if (!btn) return;
+  e.preventDefault();
+  handleOverlayAction(btn.dataset.action, btn.dataset);
+});
+
 // ── HUD 构建 / 增量更新（仅内容变化才重写 DOM，避免 aria-live 抖动） ──
 // buildHudModel 已由 AppMachine 提供（src/state/app.ts）：每次状态变化后实时派生
 // undoSegments / starPreview / doorStatus 真实值，main.ts 仅负责渲染与增量更新。
@@ -213,9 +302,36 @@ function hideOverlay(): void {
   overlayEl.style.display = 'none';
 }
 
+// 覆盖层按需重渲染：仅当「标识」变化时才重写 DOM。
+// 既避免每帧重绘开销，也保证触屏点击的目标节点不被下一帧 innerHTML 替换而丢失 click。
+let overlayKey = '';
+const OVERLAY_HIDDEN = 'HIDDEN';
+function syncOverlay(key: string, html: string): void {
+  const realKey = html === '' ? OVERLAY_HIDDEN : key;
+  if (realKey === overlayKey) return;
+  if (html === '') hideOverlay();
+  else showOverlay(html);
+  overlayKey = realKey;
+}
+
+// 触屏控件（dpad + 暂停按钮）仅游玩态显示，避免菜单/选关/暂停/结算时误触
+let lastTouchPlaying = false;
+function syncTouchPlaying(): void {
+  const playing = app.state === 'PLAYING';
+  if (playing !== lastTouchPlaying) {
+    touchCtl.setPlaying(playing);
+    lastTouchPlaying = playing;
+  }
+}
+
 function menuHtml(): string {
   const daily = app.canShowDaily() ? '（每日分区已解锁）' : '';
-  return `<h1>${APP_NAME}</h1><div>${VERSION_LABEL}${daily}</div><div class="hint">按 <kbd>Enter</kbd> 开始 · <kbd>S</kbd> 设置</div>`;
+  return `<h1>${APP_NAME}</h1><div>${VERSION_LABEL}${daily}</div>
+    <div class="hint">按 <kbd>Enter</kbd> 开始 · <kbd>S</kbd> 设置</div>
+    <div style="margin-top:14px">
+      <button type="button" class="ov-btn" data-action="menu-start">开始游戏</button>
+      <button type="button" class="ov-btn alt" data-action="menu-settings">设置</button>
+    </div>`;
 }
 // 可访问性设置面板（E6-3）：只暴露「关闭即不丢信息」的开关，覆盖于 MENU / PAUSED 之上。
 // 设计底线：F5 迷雾关→复用 BAKED 路径（不改 visible/visited/星级）；M2 动效关→装饰动效消失但信息仍可见。
@@ -226,13 +342,14 @@ function settingsHtml(): string {
   const sound = sfx.isMuted ? '静音' : '开启';
   const ui = uiScaleLabel(settings.uiScale);
   return `<h1>可访问性设置</h1>
-    <div style="line-height:1.9;text-align:left;max-width:440px;margin:8px auto">
-      <div>减少动效（M2）：<kbd>M</kbd> 切换 · 当前 <b>${motion}</b></div>
-      <div>迷雾（F5）：<kbd>F</kbd> 切换 · 当前 <b>${fog}</b></div>
-      <div>字号（U5）：<kbd>T</kbd> 切换 · 当前 <b>${ui}</b></div>
-      <div>音效：<kbd>X</kbd> 切换 · 当前 <b>${sound}</b></div>
+    <div style="line-height:2.1;text-align:left;max-width:440px;margin:8px auto">
+      <div>减少动效（M2）：<button type="button" class="ov-btn alt" data-action="settings-m">切换 · 当前 <b>${motion}</b></button></div>
+      <div>迷雾（F5）：<button type="button" class="ov-btn alt" data-action="settings-f">切换 · 当前 <b>${fog}</b></button></div>
+      <div>字号（U5）：<button type="button" class="ov-btn alt" data-action="settings-t">切换 · 当前 <b>${ui}</b></button></div>
+      <div>音效：<button type="button" class="ov-btn alt" data-action="settings-x">切换 · 当前 <b>${sound}</b></button></div>
     </div>
-    <div class="hint">两项关闭后信息仍完整可见（图案填充 / 钥匙双编码 / 对比度不依赖它们）。<kbd>Esc</kbd> 返回</div>`;
+    <div class="hint">两项关闭后信息仍完整可见（图案填充 / 钥匙双编码 / 对比度不依赖它们）。<kbd>Esc</kbd> 返回</div>
+    <button type="button" class="ov-btn" data-action="settings-close" style="margin-top:12px">返回</button>`;
 }
 function levelLabel(): string {
   return formatLevelLabel(app.level?.id ?? '');
@@ -272,8 +389,9 @@ function selectHtml(): string {
       const bestHtml = bestLine
         ? `<span style="display:block;font-size:calc(11px * var(--ui-scale));color:#6b6152;font-weight:400">${bestLine}</span>`
         : '';
+      const action = unlocked ? ` data-action="lvl-select" data-n="${n}"` : '';
       chips.push(
-        `<span style="display:inline-block;min-width:74px;margin:3px;padding:4px 6px;border:1px solid #c9bfa9;border-radius:6px;${cur}${dim}">${n}. ${mark}${bestHtml}</span>`,
+        `<button type="button" class="lvl-chip"${action} style="min-width:74px;margin:3px;padding:4px 6px;border:1px solid #c9bfa9;border-radius:6px;background:#f4f1ea;${cur}${dim}">${n}. ${mark}${bestHtml}</button>`,
       );
     }
     rowHtml.push(`<div style="margin:2px 0">${chips.join('')}</div>`);
@@ -283,14 +401,24 @@ function selectHtml(): string {
   // GATE_DAILY：未解锁时「每日」分区完全不出现（不显示、不灰显、不预告，GDD⑥ D-1）
   const dailyBlock =
     d && d.unlocked && d.levels
-      ? `<div style="margin-top:12px">每日 · 中（按 <kbd>1</kbd>） · 每日 · 高（按 <kbd>2</kbd>）</div>
+      ? `<div style="margin-top:12px">
+           <button type="button" class="ov-btn alt" data-action="lvl-daily" data-tier="mid">每日 · 中（按 1）</button>
+           <button type="button" class="ov-btn alt" data-action="lvl-daily" data-tier="high">每日 · 高（按 2）</button>
+         </div>
          <div class="hint">${d.todayKey} · UTC 全球同题</div>`
       : '';
 
-  return `<h1>关卡选择</h1><div style="max-width:600px;line-height:1.35">${rowHtml.join('')}</div>${dailyBlock}<div class="hint"><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd> 选关 · <kbd>Enter</kbd> 进入 · <kbd>Esc</kbd> 返回主菜单</div>`;
+  return `<h1>关卡选择</h1><div style="max-width:600px;line-height:1.35">${rowHtml.join('')}</div>${dailyBlock}<div class="hint"><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd> 选关 · <kbd>Enter</kbd> 进入 · <kbd>Esc</kbd> 返回主菜单（也可直接点选关卡）</div>`;
 }
 function pauseHtml(): string {
-  return `<h1>已暂停</h1><div class="hint"><kbd>Esc</kbd>/<kbd>Enter</kbd> 继续 · <kbd>R</kbd> 重开 · <kbd>Q</kbd> 返回选关</div>`;
+  return `<h1>已暂停</h1>
+    <div class="hint"><kbd>Esc</kbd>/<kbd>Enter</kbd> 继续 · <kbd>R</kbd> 重开 · <kbd>Q</kbd> 返回选关</div>
+    <div style="margin-top:14px">
+      <button type="button" class="ov-btn" data-action="set-resume">继续</button>
+      <button type="button" class="ov-btn alt" data-action="set-restart">重开</button>
+      <button type="button" class="ov-btn alt" data-action="set-menu">返回选关</button>
+      <button type="button" class="ov-btn alt" data-action="set-settings">设置</button>
+    </div>`;
 }
 function settleHtml(): string {
   const r = app.result;
@@ -356,41 +484,48 @@ function frame(now: number): void {
 
   // 设置面板覆盖层优先（MENU / PAUSED 之上）；其下状态照常渲染（PAUSED 仍渲染迷宫做背景）
   if (showSettings) {
-    showOverlay(settingsHtml());
+    syncOverlay(
+      `SETTINGS:${settings.motionScale}:${settings.fogOff ? 1 : 0}:${settings.uiScale}:${sfx.isMuted ? 1 : 0}`,
+      settingsHtml(),
+    );
+    syncTouchPlaying();
     requestAnimationFrame(frame);
     return;
   }
 
-  // 覆盖层（非游玩态显示菜单/选关/暂停/结算）
-  if (app.state === 'MENU') {
-    rawCtx.clearRect(0, 0, CANVAS_W, CANVAS_H); // 清空迷宫区，避免残留上一关
-    showOverlay(menuHtml());
-    requestAnimationFrame(frame);
-    return;
-  }
-  if (app.state === 'LEVEL_SELECT') {
-    showOverlay(selectHtml());
-    requestAnimationFrame(frame);
-    return;
+  // 覆盖层（非游玩态显示菜单/选关/暂停/结算）；syncOverlay 仅在标识变化时重绘
+  switch (app.state) {
+    case 'MENU':
+      rawCtx.clearRect(0, 0, CANVAS_W, CANVAS_H); // 清空迷宫区，避免残留上一关
+      syncOverlay('MENU', menuHtml());
+      break;
+    case 'LEVEL_SELECT':
+      syncOverlay(`LV:${mainSel}`, selectHtml());
+      break;
+    case 'PLAYING':
+    case 'PAUSED':
+    case 'SETTLEMENT': {
+      // 需要 level + run + pipe
+      if (!app.level || !app.run || !pipe) {
+        syncTouchPlaying();
+        requestAnimationFrame(frame);
+        return;
+      }
+      pipe.moveTo(app.run.pos, app.run.visited);
+      pipe.renderFrame(buildEntityView());
+      if (app.state === 'PAUSED') syncOverlay('PAUSED', pauseHtml());
+      else if (app.state === 'SETTLEMENT') syncOverlay('SETTLEMENT', settleHtml());
+      else syncOverlay('PLAY', ''); // 游玩中：隐藏覆盖层
+      break;
+    }
   }
 
-  // PLAYING / PAUSED / SETTLEMENT：需要 level + run + pipe
-  if (!app.level || !app.run || !pipe) {
-    requestAnimationFrame(frame);
-    return;
-  }
-  pipe.moveTo(app.run.pos, app.run.visited);
-  pipe.renderFrame(buildEntityView());
-
-  if (app.state === 'PAUSED') showOverlay(pauseHtml());
-  else if (app.state === 'SETTLEMENT') showOverlay(settleHtml());
-  else hideOverlay();
-
+  syncTouchPlaying();
   requestAnimationFrame(frame);
 }
 
 // 启动于 MENU
-showOverlay(menuHtml());
+syncOverlay('MENU', menuHtml());
 requestAnimationFrame(frame);
 
 // 便于调试 / E6 接管：暴露实例

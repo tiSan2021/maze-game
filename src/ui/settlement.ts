@@ -45,7 +45,14 @@ export function renderSettlementHtml(m: SettlementModel): string {
         ? `刷新历史最佳（原 ${renderStars(m.bestStar)}）`
         : `历史最佳 ${renderStars(m.bestStar)}（本次未超越）`;
   const label = m.label ? `<div class="hint">${m.label}</div>` : '';
-  const nextHint = m.hasNext ? ' · <kbd>N</kbd> 下一关' : '';
+
+  const buttons = [
+    `<button type="button" class="ov-btn" data-action="settle-replay">重玩本关</button>`,
+    m.hasNext ? `<button type="button" class="ov-btn alt" data-action="settle-next">下一关（N）</button>` : '',
+    `<button type="button" class="ov-btn alt" data-action="settle-select">返回选关（Q）</button>`,
+  ]
+    .filter(Boolean)
+    .join('');
 
   return [
     '<h1>通关！</h1>',
@@ -54,7 +61,7 @@ export function renderSettlementHtml(m: SettlementModel): string {
     `<div class="hint">共 ${m.segmentCount} 段 · ${backtrackText}</div>`,
     `<div class="hint">步数 ${m.steps} · 用时 ${formatDuration(m.elapsedMs)}</div>`,
     bestText ? `<div class="hint">${bestText}</div>` : '',
-    `<div class="hint"><kbd>Enter</kbd> 重玩本关${nextHint} · <kbd>Q</kbd> 返回选关</div>`,
+    `<div style="margin-top:14px">${buttons}</div>`,
   ]
     .filter(Boolean)
     .join('');

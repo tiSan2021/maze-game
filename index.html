@@ -117,6 +117,66 @@
       .dpad .right {
         grid-area: 2 / 3 / 3 / 4;
       }
+      /* 阶段 C：覆盖层可点按钮（触屏 / 鼠标通用） */
+      #overlay .ov-btn {
+        display: inline-block;
+        margin: 5px 6px;
+        padding: 10px 22px;
+        border: 1px solid #8a7a55;
+        background: #8a7a55;
+        color: #fff8ee;
+        border-radius: 10px;
+        font-size: calc(16px * var(--ui-scale));
+        font-family: inherit;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+      }
+      #overlay .ov-btn.alt {
+        background: #efe9dc;
+        color: #2a2419;
+        border-color: #c9bfa9;
+      }
+      #overlay .ov-btn:active {
+        background: #6f6243;
+      }
+      #overlay .ov-btn.alt:active {
+        background: #ded4bd;
+      }
+      #overlay .lvl-chip {
+        cursor: pointer;
+        font-family: inherit;
+        font-size: calc(13px * var(--ui-scale));
+        background: #f4f1ea;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+      }
+      #overlay .lvl-chip:active {
+        background: #e6ddc8;
+      }
+      /* 暂停按钮：仅游玩态显示（由 touch.ts 控制显隐），位于画布右上角 */
+      .pause-btn {
+        position: absolute;
+        top: 38px;
+        right: 12px;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: 1px solid #c9bfa9;
+        background: rgba(239, 233, 220, 0.92);
+        color: #2a2419;
+        font-size: 18px;
+        line-height: 1;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 11;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .pause-btn:active {
+        background: #d8cfb8;
+      }
 
     </style>
   </head>

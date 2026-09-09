@@ -17,6 +17,13 @@ export interface TouchControlsOptions {
   input: KeyboardInput;
   /** 首次手势回调（用于解锁 AudioContext，浏览器策略要求用户手势内创建） */
   unlock: () => void;
+  /** 暂停按钮点击回调（仅游玩态显示，由 main.ts 桥接到 AppMachine.pause） */
+  onPause: () => void;
+}
+
+/** 触屏控件对外控制器：按游戏状态切换 dpad + 暂停按钮的显隐 */
+export interface TouchControls {
+  setPlaying(playing: boolean): void;
 }
 
 /** 滑动判定阈值（client 像素差），小于此视为点按、不移动 */
@@ -30,10 +37,10 @@ function isTouchDevice(): boolean {
   );
 }
 
-export function mountTouchControls(opts: TouchControlsOptions): () => void {
-  if (!isTouchDevice()) return () => {};
+export function mountTouchControls(opts: TouchControlsOptions): TouchControls {
+  if (!isTouchDevice()) return { setPlaying() {} };
 
-  const { canvas, container, input, unlock } = opts;
+  const { canvas, container, input, unlock, onPause } = opts;
 
   // 首次手势解锁音频
   const onFirstTouch = () => {
@@ -108,10 +115,31 @@ export function mountTouchControls(opts: TouchControlsOptions): () => void {
   );
   container.appendChild(dpad);
 
-  return () => {
-    window.removeEventListener('touchstart', onFirstTouch);
-    canvas.removeEventListener('touchstart', onStart);
-    canvas.removeEventListener('touchend', onEnd);
-    dpad.remove();
+  // 暂停按钮（仅游玩态显示）：右上角，点击 → onPause（桥接 AppMachine.pause）
+  const pauseBtn = document.createElement('button');
+  pauseBtn.type = 'button';
+  pauseBtn.className = 'pause-btn';
+  pauseBtn.setAttribute('aria-label', '暂停');
+  pauseBtn.textContent = '⏸';
+  const firePause = (e: Event) => {
+    e.preventDefault();
+    onPause();
+  };
+  pauseBtn.addEventListener('touchstart', firePause, { passive: false });
+  pauseBtn.addEventListener('click', firePause);
+  container.appendChild(pauseBtn);
+
+  // 按游戏状态切换显隐（非 PLAYING 全部隐藏，避免误触）
+  let visible = false;
+  const setPlaying = (playing: boolean) => {
+    if (playing === visible) return;
+    visible = playing;
+    dpad.style.display = playing ? 'grid' : 'none';
+    pauseBtn.style.display = playing ? 'flex' : 'none';
+  };
+  setPlaying(false);
+
+  return {
+    setPlaying,
   };
 }

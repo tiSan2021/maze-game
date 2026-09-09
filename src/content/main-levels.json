@@ -90,8 +90,8 @@
           "floor",
           "floor",
           "floor",
-          "wall",
-          "wall",
+          "floor",
+          "floor",
           "wall"
         ],
         [
@@ -121,7 +121,7 @@
         "lockDepth": 0,
         "keyCount": 0,
         "doorCount": 0,
-        "deadEndBranches": 3,
+        "deadEndBranches": 4,
         "expectedSolution": [
           "right",
           "right",
@@ -181,29 +181,7 @@
           "wall",
           "wall",
           "wall",
-          "wall",
           "floor",
-          "wall",
-          "wall"
-        ],
-        [
-          "wall",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "wall"
-        ],
-        [
-          "wall",
-          "floor",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
           "wall",
           "wall",
           "wall"
@@ -223,10 +201,32 @@
           "wall",
           "wall",
           "wall",
+          "floor",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall"
+        ],
+        [
+          "wall",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "wall"
+        ],
+        [
+          "wall",
+          "wall",
           "wall",
           "wall",
           "wall",
           "floor",
+          "wall",
           "wall",
           "wall"
         ],
@@ -258,7 +258,7 @@
         "y": 1
       },
       "exit": {
-        "x": 1,
+        "x": 7,
         "y": 7
       },
       "keys": [],
@@ -268,34 +268,24 @@
         "lockDepth": 0,
         "keyCount": 0,
         "doorCount": 0,
-        "deadEndBranches": 4,
+        "deadEndBranches": 6,
         "expectedSolution": [
           "right",
           "right",
           "right",
           "right",
-          "right",
           "down",
           "down",
-          "left",
-          "left",
-          "left",
           "left",
           "left",
           "down",
           "down",
           "right",
           "right",
-          "right",
-          "right",
-          "right",
           "down",
           "down",
-          "left",
-          "left",
-          "left",
-          "left",
-          "left"
+          "right",
+          "right"
         ]
       }
     },
@@ -328,28 +318,6 @@
         ],
         [
           "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "floor",
-          "wall",
-          "wall"
-        ],
-        [
-          "wall",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "wall"
-        ],
-        [
-          "wall",
           "floor",
           "wall",
           "wall",
@@ -377,7 +345,29 @@
           "wall",
           "wall",
           "wall",
+          "wall",
           "floor",
+          "wall"
+        ],
+        [
+          "wall",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "wall"
+        ],
+        [
+          "wall",
+          "floor",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
           "wall",
           "wall"
         ],
@@ -419,8 +409,11 @@
         "lockDepth": 0,
         "keyCount": 0,
         "doorCount": 0,
-        "deadEndBranches": 4,
+        "deadEndBranches": 2,
         "expectedSolution": [
+          "down",
+          "down",
+          "right",
           "right",
           "right",
           "right",
@@ -433,20 +426,9 @@
           "left",
           "left",
           "left",
-          "down",
-          "down",
-          "right",
-          "right",
-          "right",
-          "right",
-          "right",
-          "down",
-          "down",
           "left",
-          "left",
-          "left",
-          "left",
-          "left"
+          "down",
+          "down"
         ]
       }
     },
@@ -829,7 +811,7 @@
         "y": 1
       },
       "exit": {
-        "x": 7,
+        "x": 1,
         "y": 9
       },
       "keys": [
@@ -847,7 +829,7 @@
           "id": "d0",
           "color": 0,
           "pos": {
-            "x": 3,
+            "x": 7,
             "y": 7
           }
         }
@@ -890,13 +872,7 @@
           "left",
           "left",
           "down",
-          "down",
-          "right",
-          "right",
-          "right",
-          "right",
-          "right",
-          "right"
+          "down"
         ]
       }
     },
@@ -927,60 +903,8 @@
           "floor",
           "floor",
           "floor",
-          "wall",
-          "wall",
-          "wall"
-        ],
-        [
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "floor",
-          "wall",
-          "wall",
-          "wall"
-        ],
-        [
-          "wall",
           "floor",
           "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "wall"
-        ],
-        [
-          "wall",
-          "floor",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall",
-          "wall"
-        ],
-        [
-          "wall",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "floor",
-          "wall",
-          "wall",
           "wall"
         ],
         [
@@ -1031,8 +955,60 @@
           "floor",
           "floor",
           "floor",
+          "floor",
+          "floor",
+          "wall"
+        ],
+        [
           "wall",
           "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "floor",
+          "wall",
+          "wall",
+          "wall"
+        ],
+        [
+          "wall",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "wall"
+        ],
+        [
+          "wall",
+          "floor",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall",
+          "wall"
+        ],
+        [
+          "wall",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
+          "floor",
           "wall"
         ],
         [
@@ -1054,7 +1030,7 @@
         "y": 1
       },
       "exit": {
-        "x": 7,
+        "x": 9,
         "y": 9
       },
       "keys": [
@@ -1072,7 +1048,7 @@
           "id": "d0",
           "color": 0,
           "pos": {
-            "x": 3,
+            "x": 5,
             "y": 7
           }
         }
@@ -1082,7 +1058,7 @@
         "lockDepth": 1,
         "keyCount": 1,
         "doorCount": 1,
-        "deadEndBranches": 2,
+        "deadEndBranches": 4,
         "expectedSolution": [
           "right",
           "right",
@@ -1116,6 +1092,8 @@
           "left",
           "down",
           "down",
+          "right",
+          "right",
           "right",
           "right",
           "right",
@@ -1297,7 +1275,7 @@
           "id": "d0",
           "color": 0,
           "pos": {
-            "x": 3,
+            "x": 1,
             "y": 7
           }
         }
@@ -1504,7 +1482,7 @@
         "y": 1
       },
       "exit": {
-        "x": 7,
+        "x": 9,
         "y": 9
       },
       "keys": [
@@ -1512,7 +1490,7 @@
           "id": "k0",
           "color": 0,
           "pos": {
-            "x": 3,
+            "x": 7,
             "y": 1
           }
         }
@@ -1522,7 +1500,7 @@
           "id": "d0",
           "color": 0,
           "pos": {
-            "x": 3,
+            "x": 4,
             "y": 7
           }
         }
@@ -1532,7 +1510,7 @@
         "lockDepth": 1,
         "keyCount": 1,
         "doorCount": 1,
-        "deadEndBranches": 5,
+        "deadEndBranches": 4,
         "expectedSolution": [
           "right",
           "right",
@@ -1566,6 +1544,8 @@
           "left",
           "down",
           "down",
+          "right",
+          "right",
           "right",
           "right",
           "right",

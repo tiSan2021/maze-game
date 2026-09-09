@@ -14,6 +14,7 @@ import { key } from './util/grid';
 import { KeyboardInput, dirOfKey } from './input/keyboard';
 import { type StorageLike, MAIN_LEVEL_COUNT } from './sim/progress';
 import { renderSettlementHtml } from './ui/settlement';
+import { moveSelection, MAIN_SEL_COLS } from './ui/level-grid';
 import { AppMachine, formatLevelLabel } from './state/app';
 import { loadSettings, saveSettings, nextMotionScale, motionLabel } from './state/settings';
 import { SfxEngine } from './audio/sfx';
@@ -105,11 +106,13 @@ function onKey(e: KeyboardEvent): void {
       if (k === 'Enter') {
         if (app.enterMainLevel(mainSel)) loadPipeline();
       } else if (k === 'ArrowLeft') {
-        clampSel();
-        mainSel = Math.max(1, mainSel - 1);
+        mainSel = moveSelection(mainSel, 'left', highestUnlockedMain());
       } else if (k === 'ArrowRight') {
-        clampSel();
-        mainSel = Math.min(highestUnlockedMain(), mainSel + 1);
+        mainSel = moveSelection(mainSel, 'right', highestUnlockedMain());
+      } else if (k === 'ArrowUp') {
+        mainSel = moveSelection(mainSel, 'up', highestUnlockedMain());
+      } else if (k === 'ArrowDown') {
+        mainSel = moveSelection(mainSel, 'down', highestUnlockedMain());
       } else if (k === '1' || k === '2') {
         if (app.enterDaily(k === '1' ? 'mid' : 'high')) loadPipeline();
       } else if (k === 'Escape') app.goToMenu();
@@ -224,16 +227,23 @@ function clampSel(): void {
 
 function selectHtml(): string {
   clampSel();
-  const chips: string[] = [];
-  for (let n = 1; n <= MAIN_LEVEL_COUNT; n++) {
-    const unlocked = app.isMainUnlocked(n);
-    const star = app.bestStarOf(`main-${n}`);
-    const mark = !unlocked ? '未解锁' : star > 0 ? '★'.repeat(star) + '☆'.repeat(3 - star) : '未通关';
-    const cur = n === mainSel ? 'outline:2px solid #8a7a55;font-weight:600;' : '';
-    const dim = unlocked ? '' : 'color:#a39880;';
-    chips.push(
-      `<span style="display:inline-block;min-width:74px;margin:3px;padding:4px 6px;border:1px solid #c9bfa9;border-radius:6px;${cur}${dim}">${n}. ${mark}</span>`,
-    );
+  const rows = Math.ceil(MAIN_LEVEL_COUNT / MAIN_SEL_COLS);
+  const rowHtml: string[] = [];
+  for (let r = 0; r < rows; r++) {
+    const chips: string[] = [];
+    for (let c = 0; c < MAIN_SEL_COLS; c++) {
+      const n = r * MAIN_SEL_COLS + c + 1;
+      if (n > MAIN_LEVEL_COUNT) continue; // 无残缺行（24=6×4 整除，正常不触发）
+      const unlocked = app.isMainUnlocked(n);
+      const star = app.bestStarOf(`main-${n}`);
+      const mark = !unlocked ? '未解锁' : star > 0 ? '★'.repeat(star) + '☆'.repeat(3 - star) : '未通关';
+      const cur = n === mainSel ? 'outline:2px solid #8a7a55;font-weight:600;' : '';
+      const dim = unlocked ? '' : 'color:#a39880;';
+      chips.push(
+        `<span style="display:inline-block;min-width:74px;margin:3px;padding:4px 6px;border:1px solid #c9bfa9;border-radius:6px;${cur}${dim}">${n}. ${mark}</span>`,
+      );
+    }
+    rowHtml.push(`<div style="margin:2px 0">${chips.join('')}</div>`);
   }
 
   const d = app.daily;
@@ -244,7 +254,7 @@ function selectHtml(): string {
          <div class="hint">${d.todayKey} · UTC 全球同题</div>`
       : '';
 
-  return `<h1>关卡选择</h1><div style="max-width:600px;line-height:1.2">${chips.join('')}</div>${dailyBlock}<div class="hint"><kbd>←</kbd><kbd>→</kbd> 选关 · <kbd>Enter</kbd> 进入 · <kbd>Esc</kbd> 返回主菜单</div>`;
+  return `<h1>关卡选择</h1><div style="max-width:600px;line-height:1.2">${rowHtml.join('')}</div>${dailyBlock}<div class="hint"><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd> 选关 · <kbd>Enter</kbd> 进入 · <kbd>Esc</kbd> 返回主菜单</div>`;
 }
 function pauseHtml(): string {
   return `<h1>已暂停</h1><div class="hint"><kbd>Esc</kbd>/<kbd>Enter</kbd> 继续 · <kbd>R</kbd> 重开 · <kbd>Q</kbd> 返回选关</div>`;

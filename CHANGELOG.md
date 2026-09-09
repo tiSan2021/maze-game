@@ -84,10 +84,23 @@
 - 向后兼容：旧存档无 `uiScale` 字段 → 回落标准档且不重置其它设置（schema 版本仍为 1）。
 - 顺带清理：`index.html` 的 `<title>` 由遗留的「迷宫闯关 · 演示壳 (P5-S3-E3)」改为「迷宫闯关」。
 
+### 选关页最佳成绩（刷分展示）· `56fe8f8`
+- 需求：选关页展示每关**最佳步数 / 用时**，方便刷分。
+- 新增 `src/ui/format.ts`：`formatDuration(ms)` → `mm:ss`（分钟不取模，≥1 小时累加如 `60:00`），
+  作为时间格式化的**单一实现**。
+- 新增 `src/ui/level-best.ts`：`formatBestLine(record)` → `"N 步 · mm:ss"`；无记录（未通关）返回空串。
+- `src/render/hud.ts`：删除本地 `fmtTime`，改为 import 共享 `formatDuration`，消除两处实现漂移风险。
+- `src/main.ts`：选关覆盖层每个**已通关**关卡的 chip 内追加第二行最佳成绩；未通关不显示（避免噪音）。
+  chip 容器 `line-height` 1.2 → 1.35 以容纳两行。
+- 数据源沿用既有 `bestOf(progress, mainLevelId(n))` → `LevelRecord.bestStarSteps` / `bestStarElapsedMs`，
+  **未新增存档字段**，schema 版本仍为 1。
+- 新增 `tests/unit/level-best.test.ts`（7 用例）：0ms / 7.9s / 65s / 3600s 边界、
+  null 与 undefined 回落空串、有记录拼接格式。
+
 ### 验证
 - `tsc --noEmit`：**0 错误**。
-- `vitest run`：**48 文件 / 242 用例全绿**。
-- `vite build`：**通过**（43 模块；`dist/assets/index-*.js` 82.24 kB / gzip 18.26 kB）。
+- `vitest run`：**49 文件 / 253 用例全绿**。
+- `vite build`：**通过**（45 模块；`dist/assets/index-*.js` 83.00 kB / gzip 18.55 kB）。
 
 ### 已知风险 / 待办（承接 v0.5.0）
 - **三锁 + R=2 的手感待浏览器试玩确认**：是否"耐玩而非折磨"、R=2 是否过暗，需真机判断，非自动化可覆盖。

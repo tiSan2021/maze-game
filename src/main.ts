@@ -12,9 +12,10 @@ import { computeVisibility } from './sim/visibility';
 import type { EntityView } from './render/sprites';
 import { key } from './util/grid';
 import { KeyboardInput, dirOfKey } from './input/keyboard';
-import { type StorageLike, MAIN_LEVEL_COUNT } from './sim/progress';
+import { type StorageLike, MAIN_LEVEL_COUNT, bestOf, mainLevelId } from './sim/progress';
 import { renderSettlementHtml } from './ui/settlement';
 import { moveSelection, MAIN_SEL_COLS } from './ui/level-grid';
+import { formatBestLine } from './ui/level-best';
 import { AppMachine, formatLevelLabel } from './state/app';
 import { loadSettings, saveSettings, nextMotionScale, motionLabel, nextUiScale, uiScaleLabel } from './state/settings';
 import { SfxEngine } from './audio/sfx';
@@ -251,8 +252,13 @@ function selectHtml(): string {
       const mark = !unlocked ? '未解锁' : star > 0 ? '★'.repeat(star) + '☆'.repeat(3 - star) : '未通关';
       const cur = n === mainSel ? 'outline:2px solid #8a7a55;font-weight:600;' : '';
       const dim = unlocked ? '' : 'color:#a39880;';
+      // 最佳成绩行（步数 / 用时）：仅已通关（有记录）时显示，方便刷分
+      const bestLine = formatBestLine(bestOf(app.progress, mainLevelId(n)));
+      const bestHtml = bestLine
+        ? `<span style="display:block;font-size:calc(11px * var(--ui-scale));color:#6b6152;font-weight:400">${bestLine}</span>`
+        : '';
       chips.push(
-        `<span style="display:inline-block;min-width:74px;margin:3px;padding:4px 6px;border:1px solid #c9bfa9;border-radius:6px;${cur}${dim}">${n}. ${mark}</span>`,
+        `<span style="display:inline-block;min-width:74px;margin:3px;padding:4px 6px;border:1px solid #c9bfa9;border-radius:6px;${cur}${dim}">${n}. ${mark}${bestHtml}</span>`,
       );
     }
     rowHtml.push(`<div style="margin:2px 0">${chips.join('')}</div>`);
@@ -266,7 +272,7 @@ function selectHtml(): string {
          <div class="hint">${d.todayKey} · UTC 全球同题</div>`
       : '';
 
-  return `<h1>关卡选择</h1><div style="max-width:600px;line-height:1.2">${rowHtml.join('')}</div>${dailyBlock}<div class="hint"><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd> 选关 · <kbd>Enter</kbd> 进入 · <kbd>Esc</kbd> 返回主菜单</div>`;
+  return `<h1>关卡选择</h1><div style="max-width:600px;line-height:1.35">${rowHtml.join('')}</div>${dailyBlock}<div class="hint"><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd> 选关 · <kbd>Enter</kbd> 进入 · <kbd>Esc</kbd> 返回主菜单</div>`;
 }
 function pauseHtml(): string {
   return `<h1>已暂停</h1><div class="hint"><kbd>Esc</kbd>/<kbd>Enter</kbd> 继续 · <kbd>R</kbd> 重开 · <kbd>Q</kbd> 返回选关</div>`;

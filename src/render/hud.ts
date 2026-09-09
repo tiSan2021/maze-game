@@ -4,6 +4,7 @@
 
 import { HUD_H } from '../core/constants/metrics';
 import { KEY_COLORS } from '../core/constants/palette';
+import { formatDuration } from '../ui/format';
 import type { KeyColor } from '../core/types';
 
 export interface HudModel {
@@ -21,13 +22,6 @@ export interface HudModel {
   doorStatus?: { opened: number; total: number } | null;
   /** 展示用关卡标签（"第 7 关" / "每日 · 中"）；缺省退回 levelId（UX §2.2） */
   levelLabel?: string;
-}
-
-function fmtTime(ms: number): string {
-  const total = Math.floor(ms / 1000);
-  const m = Math.floor(total / 60);
-  const s = total % 60;
-  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
 /** 纯函数：输出 HUD 的 HTML 字符串（含 aria-live，屏幕阅读器可感知） */
@@ -67,7 +61,7 @@ export function renderHudHtml(m: HudModel): string {
     `style="height:${HUD_H}px;display:flex;align-items:center;justify-content:space-between;` +
     `padding:0 12px;background:#EFEADC;border-bottom:1.5px solid #C9BFA9;font-family:system-ui,sans-serif;font-size:calc(13px * var(--ui-scale));color:#2A2419;">` +
     `<span>关卡 ${m.levelLabel ?? m.levelId}</span>` +
-    `<span>${fmtTime(m.timeMs)}</span>` +
+    `<span>${formatDuration(m.timeMs)}</span>` +
     `<span>步数 ${m.steps} · 钥匙 ${swatches} (${m.keysHeld.length}/${m.totalKeys})</span>` +
     doorStatus +
     `<span>回溯 ${undoSegments}</span>` +

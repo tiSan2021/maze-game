@@ -1,4 +1,4 @@
-// perf-budget.test.ts · CI 闸门：最坏情况关（main-12，13×13 fog 双锁）帧预算
+// perf-budget.test.ts · CI 闸门：最坏情况关（main-24，13×13 fog 三锁）帧预算
 //
 // 门限性质：这是**逻辑侧（CPU/JS）帧预算门**，不是真机像素栅格化预算。
 //   vitest.config.ts 的 environment='node'，仓库未装 node-canvas，
@@ -84,7 +84,9 @@ function createNullCanvasFactory(): CanvasFactory {
 }
 
 /**
- * 合法行走路径**由关卡自身派生**：沿 main-12 的 expectedSolution 主干推进 13 格。
+ * 合法行走路径**由关卡自身派生**：沿 main-24 的 expectedSolution 主干推进。
+ * 2026-09-09：基准由 main-12（双锁 2门2钥匙）改为 main-24（三锁 3门3钥匙）——
+ * 难度上限提升后，最坏情况应是内容天花板那一档，否则门禁覆盖不到真正最重的帧。
  * 不再硬编码坐标——关卡重新生成（几何变化）后本基准不会悄悄失效；
  * 下面的 it 仍会逐格断言合法性（正交相邻 + 全部落在 floor）。
  */
@@ -99,8 +101,8 @@ function buildWalkPath(level: Level): Vec2[] {
 }
 
 function worstCaseLevel(): Level {
-  const level = getMainLevel(12);
-  if (!level) throw new Error('main-12 缺失：src/content/main-levels.json 应含 24 关');
+  const level = getMainLevel(24);
+  if (!level) throw new Error('main-24 缺失：src/content/main-levels.json 应含 24 关');
   return level;
 }
 
@@ -121,8 +123,8 @@ function makeHarness(): Harness {
   pipe.init();
 
   const visited = new Set<CellKey>([key(WALK_PATH[0])]);
-  // 门/钥匙状态固定（不调 app.move，不改语义）：双锁关最重的一档 —— 门未开、钥匙都在场，
-  // 于是 drawEntities 每帧都要画 2 门 + 2 钥匙墨晕 + 出口。
+  // 门/钥匙状态固定（不调 app.move，不改语义）：三锁关最重的一档 —— 门未开、钥匙都在场，
+  // 于是 drawEntities 每帧都要画 3 门 + 3 钥匙墨晕 + 出口。
   const heldKeys = new Set<0 | 1 | 2>();
   const openedDoors = new Set<string>();
 
@@ -159,13 +161,13 @@ function percentile(xs: readonly number[], p: number): number {
   return sorted[Math.min(sorted.length - 1, Math.floor((sorted.length - 1) * p))];
 }
 
-describe('CI 闸门 · 性能预算（main-12 最坏情况：13×13 / fog / 双锁）', () => {
+describe('CI 闸门 · 性能预算（main-24 最坏情况：13×13 / fog / 三锁）', () => {
   it('WALK_PATH 是一条合法行走路径（全 floor + 正交相邻），基准才有意义', () => {
     const level = worstCaseLevel();
     expect(level.gridSize).toBe(13);
     expect(level.visionMode).toBe('fog');
-    expect(level.keys).toHaveLength(2);
-    expect(level.doors).toHaveLength(2);
+    expect(level.keys).toHaveLength(3);
+    expect(level.doors).toHaveLength(3);
     expect(WALK_PATH[0]).toEqual(level.start);
     expect(WALK_PATH[WALK_PATH.length - 1]).toEqual(level.exit);
 
@@ -212,7 +214,7 @@ describe('CI 闸门 · 性能预算（main-12 最坏情况：13×13 / fog / 双�
     const drawn = fakeCalls(mainCanvas).slice(before);
     const drawImages = drawn.filter((c) => c.type === 'drawImage').length;
 
-    // 单帧构成：L0 + L1 各 1 次 + 视野内/墙格若干 + 实体（2 门 + 2 钥匙×2 + 出口×2 + 玩家程序化）
+    // 单帧构成：L0 + L1 各 1 次 + 视野内/墙格若干 + 实体（3 门 + 3 钥匙×2 + 出口×2 + 玩家程序化）
     // 下界取 10 足够宽松（不做像素级回归），但能拦住"一次都没画"。
     expect(drawImages).toBeGreaterThan(10);
     expect(drawn.some((c) => c.type === 'clearRect')).toBe(true);
@@ -239,7 +241,7 @@ describe('CI 闸门 · 性能预算（main-12 最坏情况：13×13 / fog / 双�
     const headroom = FRAME_BUDGET_MS / avg;
 
     console.log(
-      `[perf-budget] main-12 帧时（JS 逻辑侧，n=${MEASURE_FRAMES}）：` +
+      `[perf-budget] main-24 帧时（JS 逻辑侧，n=${MEASURE_FRAMES}）：` +
         `均值 ${avg.toFixed(4)}ms · p95 ${p95.toFixed(4)}ms · 最大 ${max.toFixed(4)}ms · ` +
         `预算 ${FRAME_BUDGET_MS}ms · 余量 ${headroom.toFixed(1)}×`,
     );

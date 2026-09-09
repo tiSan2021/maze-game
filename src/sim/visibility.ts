@@ -1,5 +1,6 @@
 // visibility.ts · 视野计算 + 渲染态推导（GDD① §4.6–4.7 / ADR-03 / M-3）
-// computeVisibility：R=3 切比雪夫 + 墙邻感知（V7/Q2）。一次 8 邻域，零成本。
+// computeVisibility：R=2 切比雪夫 + 墙邻感知（V7/Q2）。一次 8 邻域，零成本。
+// 2026-09-09 由 R=3 缩至 2（玩家反馈偏易；ADR-03 仅禁止改「大」，缩小不在禁止范围，更省）。
 // cellRenderState：唯一函数（A2）；full 模式绝不返回 UNKNOWN（V6）。
 
 import type { CellKey, Level, Vec2 } from '../core/types';

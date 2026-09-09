@@ -76,7 +76,7 @@ games/
 │   │   ├── canonical.ts        # canonicalJSON（键排序，逐字节比对）(GDD② X7 / ⑤ G4)
 │   │   └── constants/
 │   │       ├── palette.ts      # 全部颜色 HEX（art-bible §2②，含三态/四态全套）
-│   │       ├── metrics.ts      # CELL_PX=40, GRID_SIZES=[9,11,13], HUD_H=32, VISION_R=3, CANVAS_W/H
+│   │       ├── metrics.ts      # CELL_PX=40, GRID_SIZES=[9,11,13], HUD_H=32, VISION_R=2（当前值，上限 3）, CANVAS_W/H
 │   │       ├── motion.ts       # 动效时长表 + motionScale(1/0.5/0) + easing
 │   │       └── pattern.ts      # 图案间距/线宽/密度（墙斜线/门交叉/笔迹/同心圆）
 │   ├── input/
@@ -86,7 +86,7 @@ games/
 │   ├── sim/
 │   │   ├── move.ts             # canMove / resolveMove                               (GDD① §4.1)
 │   │   ├── lockkey.ts          # 进度事件生产 + computeLockDepth                     (GDD③)
-│   │   ├── visibility.ts       # computeVisibility（R=3 切比雪夫 + 墙邻感知）         (GDD① §4.6)
+│   │   ├── visibility.ts       # computeVisibility（R=2 切比雪夫 + 墙邻感知，上限 3）         (GDD① §4.6)
 │   │   ├── segments.ts         # splitSegments + countBacktrackSegments（唯一实现）  (GDD② §4.1)
 │   │   ├── stars.ts            # 运行时星级结算（只读 segments）                     (GDD④)
 │   │   └── runstate.ts         # RunState 初始化/推进（写 path/visited，visited 不回滚）
@@ -205,7 +205,7 @@ state/daily.bootstrapDaily(mainProgress)
   - **关 9+（`visionMode:'fog'`）走三层增量**：每帧 2× `drawImage(L0,L1)` + 视野内 ~29 格 `drawImage` + 实体（5–6ms）。
 - **三必做前置（缺一即 9–11ms，超标）**：
   1. 墙/门/笔迹三类图案**预渲染为 tile 精灵**（`render/tiles.ts`，省 ~85% 线段开销）。
-  2. 视野半径 **R ≤ 3**（切比雪夫，约 29–30 格；R=5 明确超标 8–9ms）。
+  2. 视野半径 **R ≤ 3**（当前值 R=2，切比雪夫，约 25 格；R=5 明确超标 8–9ms；2026-09-09 由 3 缩至 2 以提升难度）。
   3. L1 记忆层**增量更新**（跨格仅重绘 `dirtyCells`，非全量重烘焙）。
 - **禁用 `shadowBlur`**；墨晕用预渲染精灵 `drawImage` 替代（art-bible §2④/§2⑤）。
 - **HUD 走 DOM**（顶部 32px，`aria-live`），不占迷宫区高度（守住 A6 一屏一关）。
@@ -323,7 +323,7 @@ cellRenderState(level, c, pos, visited, visible, a11yOverride?: 'fogOff' | 'fogR
 全部可变参数收敛于 `core/constants/` 四件套，绘制/逻辑**只引用常量、不硬编码**：
 
 - `palette.ts`：art-bible §2② 全部 HEX（结构/信号/UI 三层），三态/四态全套色。
-- `metrics.ts`：`CELL_PX=40`、`GRID_SIZES=[9,11,13]`、`HUD_H=32`、`VISION_R=3`、`CANVAS_W=960/H=640`、可用区 `944×592`。
+- `metrics.ts`：`CELL_PX=40`、`GRID_SIZES=[9,11,13]`、`HUD_H=32`、`VISION_R=2`（当前值，上限 3）、`CANVAS_W=960/H=640`、可用区 `944×592`。
 - `motion.ts`：动效时长表 + `motionScale(1/0.5/0)` + 缓动函数。
   - **A5 口径纠正（仅约束「移动插值 ≤ 200ms」）**：三类动效分治——① **移动插值 120ms** 受 A5 约束；② **交互反馈**（撞墙 80ms / 拾取 200ms）受约束且本就在限内；③ **过场与结算动效不受 A5 约束**（开门 280 / 过关 400 / 切关 250+250ms）。
     - ③ 的三个免责前提：a) 不阻塞输入（≤200ms）；b) 受 `motionScale` 控制；c) 不承载"必须被看见才知道"的信息。
@@ -348,7 +348,7 @@ cellRenderState(level, c, pos, visited, visible, a11yOverride?: 'fogOff' | 'fogR
 | V3/V5/W6 滑行终止 / 撤销回滚 / visited 单调 | `input/glide.ts` S1–S4、`input/undo.ts`、`sim/runstate.ts` |
 | Q3/Q4 G3=O(path) 且与运行时一致 | `gen/gates.ts` G3 复用 `segments.ts`；Q4 交叉断言 |
 | DQ1/DQ4 确定性 + 版本绑定 | `core/rng.ts` fnv1a32(种子含 vN)、G4 失败即报错 |
-| art-bible §3 三必做前置 | `adr/adr-03`；`render/tiles.ts` + `VISION_R=3` + `layers.ts` 增量 |
+| art-bible §3 三必做前置 | `adr/adr-03`；`render/tiles.ts` + `VISION_R=2`（当前值，上限 3）+ `layers.ts` 增量 |
 | W5/A6 尺寸与一屏一关 | `metrics.ts` + 渲染管线无摄像机滚动 |
 
 ---
@@ -361,7 +361,7 @@ cellRenderState(level, c, pos, visited, visible, a11yOverride?: 'fogOff' | 'fogR
 | A2 | G3 被实现成搜索（2^169） | 重放+共享原语，禁搜索；代码评审 grep 搜索调用（Q3） | — |
 | A3 | 关 9+ 性能超标 | 三必做前置声明为不可省略；四级降级预案（art-bible §3） | 若实测仍超，启用降级 ①②③④ |
 | A4 | HUD 布局（顶部条 vs 左侧竖栏） | 顶部条（DOM 32px） | **已裁决（Q3，用户 2026-09-04）**：顶部状态条；左侧竖栏方案（+0.3 天）不采纳 |
-| A5 | 视野半径 R 取值 | 恒 R=3 | **已裁决（art-bible v2 自解 Q1/Q4）**：R=3 锁定；原「R=4~5 渐进」方案**作废**，改为「关卡复杂度渐进 + 视野半径恒定 R=3」。CONCERN-2 中风险解除，无需重估性能预算 |
+| A5 | 视野半径 R 取值 | 上限 R≤3（当前 R=2） | **已裁决（art-bible v2 自解 Q1/Q4）**：R 上限锁定为 3（不得改大）；当前值 2（2026-09-09 由 3 缩至 2，难度提升，缩小不在禁止范围）。原「R=4~5 渐进」方案**作废**，改为「关卡复杂度渐进 + 视野半径上限恒定 3」。CONCERN-2 中风险解除，无需重估性能预算 |
 | A6 | 墙邻感知是否纳入 | 纳入（`visibility.ts`），零成本 | **已裁决（Q2，用户裁决）**：启用；零成本（一次 8 邻域查询），消除盲撞 |
 | **A7** | **客户端同步生成两张 13×13 图造成首屏/切界面卡顿**（最坏 8 次重试 + 降级） | 关卡选择界面空闲预生成；单次生成耗时埋点（>50ms 告警）；必要时 Worker | 点击到可玩 <100ms |
 | **A8** | 步骤 1「随机 DFS + 拒绝采样 50 次」在 11×11 内部网格命中高档 50–80 步的比率未知 | 记录 `attempts` 遥测；若平均 >2 次则改为"带目标长度偏置的 DFS" | Q2：30 天 `fallbackUsed=false` 且平均 attempts ≤ 2 |

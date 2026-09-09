@@ -14,7 +14,7 @@
 | 画布 CSS 逻辑尺寸 | 960 × 640 | art-bible §2⑦ |
 | 迷宫区可用 | 944 × 592；单元格 **40px**；关卡硬上限 **13×13 = 520×520** | art-bible §2⑦（C3 裁决） |
 | 关 1–8 渲染路径 | 全烘焙（L0+L2 合并静态层，每帧 1× drawImage） | ADR-03 D2 / art-bible §3 |
-| 关 9+ 渲染路径 | 三层增量（L0+L1+L2），R=3 切比雪夫恒定，L1 增量更新 | ADR-03 D1/D3 |
+| 关 9+ 渲染路径 | 三层增量（L0+L1+L2），R=2 切比雪夫恒定（上限 3），L1 增量更新 | ADR-03 D1/D3 |
 | **三必做前置（缺一即超标 9–11ms）** | 墙/门/笔迹 tile 预渲染 + R≤3 + L1 增量 | ADR-03 D3 / art-bible §3 风险2 |
 | 高 DPI | 实际像素 = CSS × dpr，`ctx.scale(dpr,dpr)`；偶数线宽整数坐标 | art-bible §2③ |
 | 禁 `shadowBlur` | 墨晕用启动期预渲染精灵 drawImage 替代 | ADR-03 D4 / art-bible §2④ |

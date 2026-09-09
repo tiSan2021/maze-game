@@ -47,8 +47,8 @@ function defaultParams(tier: Tier): ConstructParams {
     minLen: tier === 'mid' ? MID_LEN_BAND[0] : tier === 'high' ? HIGH_LEN_BAND[0] : ULTRA_LEN_BAND[0],
     maxLen: tier === 'mid' ? MID_LEN_BAND[1] : tier === 'high' ? HIGH_LEN_BAND[1] : ULTRA_LEN_BAND[1],
     lockPairs: tier === 'ultra' ? 3 : 2, // ultra（主线 L21-24）= L3 三锁；mid/high 仍为 L2
-    minBranches: 2, // SV6/Q9：≥2 条有效诱导死路
-    maxBranches: 4,
+    minBranches: 3, // SV6/Q9：≥3 条有效诱导死路（难度提升：2~4 → 3~6）
+    maxBranches: 6,
   };
 }
 

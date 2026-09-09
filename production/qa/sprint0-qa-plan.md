@@ -59,7 +59,7 @@
 - **守护的不变量（冒烟即守这些底线）**：
   1. **确定性底线 DQ3**：`src/` + `tests/` 内 `Math.random` 字面量 0 命中（自指防护已用 `'Math'+'.'+'random'` 拼接，新增测试同样不写该字面量）。
   2. **同源底线 W4**：`Level` 无来源分支（`isGenerated`/`.source`/`source==` 0 命中）。
-  3. **性能三前置代理**：`VISION_R===3`；`fnv1a32` 唯一实现；`draw-cell.ts` 无路径 API（render 缺失时占位绿）；`tileAtlasReady` 无反模式。
+  3. **性能三前置代理**：`VISION_R===2（当前值，上限 3，缩小不在禁止范围）`；`fnv1a32` 唯一实现；`draw-cell.ts` 无路径 API（render 缺失时占位绿）；`tileAtlasReady` 无反模式。
   4. **共享原语单点 W1**：`splitSegments`/`countBacktrackSegments` 全仓各仅 1 处函数体。
   5. **契约例常驻**：C1→3★、Q4 交叉断言（expectedSolution→settle 3★）、锁钥 L0/L1/L2 深度、deadends 直线/Y/双接触点。
   6. **行为不变量**：撞墙 0 step（V2）、撤销不回滚 visited（V5/D11）、走廊滑行终止（V3）。
@@ -112,7 +112,7 @@
 |---|---|---|
 | **DQ3** | `ci-gates/dq3-no-math-random.test.ts` + 构建期 grep（扫 `src/`+`tests/`） | **强制**。注意自指防护：测试与注释不写 `Math.random` 字面量（用拼接）。本 QA 新增测试已确认 0 命中。 |
 | **W4** | `ci-gates/w4-no-source.test.ts` + 构建期 grep | **强制**。 |
-| **VISION_R===3** | `ci-gates/vision-r-constant.test.ts` | **强制**，且扩展断言"无 R=4/5 分支"（grep `VISION_R` 仅常量引用）。 |
+| **VISION_R===2（当前值，上限 3，缩小不在禁止范围）** | `ci-gates/vision-r-constant.test.ts` | **强制**，且扩展断言"无 R=4/5 分支"（grep `VISION_R` 仅常量引用）。 |
 | **fnv1a32-single** | `ci-gates/fnv1a32-single.test.ts` | **强制**（`0x811c9dc5` 全仓仅 1 处）。 |
 | **W1** | `ci-gates/w1-segments-single.test.ts` | **强制**（`splitSegments`/`countBacktrackSegments` 各仅 1 函数体）。 |
 | **Q4 交叉断言** | `integration/q4-cross.test.ts` | **强制**（防 G3/运行时漂移总闸，已常驻）。 |

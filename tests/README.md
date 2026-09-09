@@ -106,7 +106,7 @@ describe('DQ3 · 全仓禁用内建随机函数', () => {
 | **DQ3** 禁内建随机函数（M·random） | `[AUTO]` | `tests/ci-gates/dq3-no-math-random.test.ts` + 构建期 `grep -rE "Math\.random" src/ tests/` | 构建失败 |
 | **W4** 无来源分支 | `[AUTO]` | `tests/ci-gates/w4-no-source-branch.test.ts` + 构建期 `grep -rE "isGenerated\|\.source\b\|source ==" src/` | 构建失败 |
 | **性能三前置·①** `lastDirtyCount<=40` | `[AUTO]` 代理 | `tests/ci-gates/perf-prereq-proxies.test.ts`（E2 单测采集 `renderStats.lastDirtyCount`） | 失败（全量重绘=169 即拦截） |
-| **性能三前置·②** `VISION_R===3` 且无 R=4/5 分支 | `[AUTO]` 代理 | `tests/ci-gates/perf-prereq-proxies.test.ts`（常量断言） | 失败 |
+| **性能三前置·②** `VISION_R===2`（上限 3）且无 R=4/5 分支 | `[AUTO]` 代理 | `tests/ci-gates/perf-prereq-proxies.test.ts`（常量断言） | 失败 |
 | **性能三前置·③** `tileAtlasReady` 早于首帧 | `[AUTO]` 代理 | `tests/ci-gates/perf-prereq-proxies.test.ts`（启动期预渲染守卫） | 失败 |
 | **性能三前置·④** `draw-cell.ts` 无路径 API | `[AUTO]` 代理 | 构建期 `grep -rE "fill\(|stroke\(|strokeText\(|createRadialGradient\(" src/render/draw-cell.ts` | 失败 |
 | **W1** 段切分单点 | `[AUTO]` | 构建期 `grep "function splitSegments"/"function countBacktrackSegments"` 各仅 1 处 | 构建失败 |
@@ -116,7 +116,7 @@ describe('DQ3 · 全仓禁用内建随机函数', () => {
 
 **CI 编排原则**（对应 `phase4-brief.md` 成员 C / E0-1）：
 
-1. **约束检查脚本先于业务代码**：E0-1 四条代理断言（DQ3 / `VISION_R===3` / tile 图集早于首帧 / `draw-cell` 无路径 API）在 `src/` 出现前即可运行，作为**流水线第一道闸门**。
+1. **约束检查脚本先于业务代码**：E0-1 四条代理断言（DQ3 / `VISION_R===2`（上限 3） / tile 图集早于首帧 / `draw-cell` 无路径 API）在 `src/` 出现前即可运行，作为**流水线第一道闸门**。
 2. **任一带 `[AUTO]` 项未通过 → 禁止进入发布**（控制清单 J 组）。三条最硬底线：DQ3 / W4 / 性能三前置。
 3. `[SPIKE]` 仅 E2 尖峰一项，CI 只守其四条代理断言，不能替代真机实测。
 

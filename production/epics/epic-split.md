@@ -13,7 +13,7 @@
 
 | 序 | Epic | 性质 | 准入闸门（前序依赖） | 说明 |
 |---|---|---|---|---|
-| **E0** | 脚手架 | 约束先于业务 | 无 | **约束检查脚本先于业务代码落地**；DQ3 / `VISION_R===3` / tile 图集早于首帧 / `draw-cell` 无路径 API 四条代理断言先可跑 |
+| **E0** | 脚手架 | 约束先于业务 | 无 | **约束检查脚本先于业务代码落地**；DQ3 / `VISION_R===2（当前值，上限 3，缩小不在禁止范围）` / tile 图集早于首帧 / `draw-cell` 无路径 API 四条代理断言先可跑 |
 | **E1** | 域内核 | TDD（C1-C3 + V2-V6 先行） | E0 | 纯逻辑层，无渲染；段切分/星级/滑行/撤销先行 |
 | **E2** | 渲染 | **性能尖峰开场（CONCERN-3 准入）** | E1 | 尖峰数据达标后才展开渲染实现；超标→产品级决策 |
 | **E3** | 应用壳 | 装配 | E1 | 启动/主循环/顶层状态机 |
@@ -22,7 +22,7 @@
 | **E6** | 内容 | — | E2, E3, E4 | 12 关手工 JSON + 输入装配 + 可访问性 + 兜底 |
 
 **强制顺序理由**：
-- E0 先于一切业务代码——四条 CI 代理断言（DQ3 / `VISION_R===3` / tile 图集早于首帧 / `draw-cell` 无路径 API）必须在 `src/` 出现前就可运行，否则"约束检查脚本先于业务代码"空谈。
+- E0 先于一切业务代码——四条 CI 代理断言（DQ3 / `VISION_R===2（当前值，上限 3，缩小不在禁止范围）` / tile 图集早于首帧 / `draw-cell` 无路径 API）必须在 `src/` 出现前就可运行，否则"约束检查脚本先于业务代码"空谈。
 - E1 先行于 E2——渲染层消费的 `Level` / `RunState` / `cellRenderState` 输入、`VISION_R` 常量、段切分原语都来自 E1；且 C1-C3（GDD② §4.3）、V2/V3/V5/V6（控制清单 C/D 组 + ADR-04）这些契约必须先被单测钉死，避免渲染期才发现域语义漂移。
 - E2 以尖峰开场（非收尾）——CONCERN-3 明确"8ms 是纸面拟合未实测"，它是 E2 的**准入条件**：先拿真机数据，达标才往下做；超标则按 §2 的产品级选项决策，渲染实现随降级结论调整。
 - E4 可与 E2/E3 并行——生成器不参与运行时（`gen/` 不进主循环），其门禁（G1–G6）独立可测，不阻塞渲染/应用壳。
@@ -37,9 +37,9 @@
 
 | Story | 标题 | 验收口径 | 依赖 | 估点 |
 |---|---|---|---|---|
-| **E0-1** | 约束检查脚本（CI 代理断言） | 4 条脚本可独立运行：① `grep -rE "Math\.random" src/ tests/` = 0（DQ3，注意字面量不自指，见 ADR-01 §3.7）；② `metrics.VISION_R === 3` 常量断言；③ `renderStats.tileAtlasReady === true` 早于首帧（启动期预渲染，未在管线首帧前为 false 即失败）；④ `render/draw-cell.ts` 内 `fill(`/`stroke(`/`strokeText(`/`createRadialGradient(` 0 命中（单格仅 `drawImage`） | 无 | 1.5 |
+| **E0-1** | 约束检查脚本（CI 代理断言） | 4 条脚本可独立运行：① `grep -rE "Math\.random" src/ tests/` = 0（DQ3，注意字面量不自指，见 ADR-01 §3.7）；② `metrics.VISION_R === 2` 常量断言（当前值，上限 3）；③ `renderStats.tileAtlasReady === true` 早于首帧（启动期预渲染，未在管线首帧前为 false 即失败）；④ `render/draw-cell.ts` 内 `fill(`/`stroke(`/`strokeText(`/`createRadialGradient(` 0 命中（单格仅 `drawImage`） | 无 | 1.5 |
 | **E0-2** | 测试框架与目录落地 | `vitest` 配置 + `tests/{unit,integration,ci-gates}` 目录 + 1 个示例测试（DQ3 grep=0）通过；CI 在 `src/` 空时即可绿 | E0-1 | 1.0 |
-| **E0-3** | 常量表骨架（四件套占位） | `core/constants/{palette,metrics,motion,pattern}.ts` 仅常量值，含 `VISION_R=3`、`CELL_PX=40`、`GRID_SIZES=[9,11,13]`、`HUD_H=32`；无逻辑；`VISION_R` 不可由配置改大（M5） | 无 | 1.5 |
+| **E0-3** | 常量表骨架（四件套占位） | `core/constants/{palette,metrics,motion,pattern}.ts` 仅常量值，含 `VISION_R=2`（当前值，上限 3，不得改大）、`CELL_PX=40`、`GRID_SIZES=[9,11,13]`、`HUD_H=32`；无逻辑；`VISION_R` 不可由配置改大（M5） | 无 | 1.5 |
 
 > E0 准出：本地 `npm test` 与约束脚本在 `src/` 尚不存在时即全绿，且 CI 阶段把 E0-1 四条列为**强制闸门**。
 
@@ -56,7 +56,7 @@
 | **E1-7** | `input/glide.ts` 走廊滑行状态机 | S1-S4 全部实现且单测覆盖（控制清单 C 组）；**V3**：环形关卡单次滑行终止且 ≤ `gridSize²` 格（S4 环形走廊保护，防无限绕环） | E1-1,E1-3 | 2.5 |
 | **E1-8** | `input/undo.ts` 撤销栈 | 粒度=一次滑行；Z 回滚 `pos/keysHeld/doorsOpened/path/steps`，**`visited` 与 `elapsedMs` 不回滚**（D11）；**V5/W6**：走 5 步撤销后 `path.length` 减、`visited.size` 不减；`RunSnapshot` 不含 `visited` 字段；快照深拷贝防别名 | E1-1 | 1.5 |
 | **E1-9** | `sim/runstate.ts` 推进 | 每次成功前进 `path.push` + `visited.add`；`visited` 单调递增；`finished` 为 true 才 `settle`（GDD② B4）；`V2` 撞墙不入 `path` 由 E1-3 保证 | E1-1,E1-3,E1-8 | 1.5 |
-| **E1-10** | `sim/visibility.ts` 视野计算 | `computeVisibility` R=3 切比雪夫 + 墙邻感知（GDD① §4.6）；**V7/Q2**：记忆区旁相邻墙必在 `visible`；**V6** 关联 `cellRenderState` 四态；零成本（一次 8 邻域） | E1-1 | 1.5 |
+| **E1-10** | `sim/visibility.ts` 视野计算 | `computeVisibility` R=2 切比雪夫 + 墙邻感知（GDD① §4.6；2026-09-09 由 3 缩至 2）；**V7/Q2**：记忆区旁相邻墙必在 `visible`；**V6** 关联 `cellRenderState` 四态；零成本（一次 8 邻域） | E1-1 | 1.5 |
 | **E1-11** | `util/grid.ts` 网格纯函数 | `key()`/`neighbor()`/`chebyshev()`/越界判定；core 零依赖 | 无 | 0.5 |
 | **E1-12** | `core/canonical.ts` 规范化 JSON | `canonicalJSON`（键排序，逐字节比对）（GDD② X7 / GDD⑤ G4）；供存档与每日种子逐字节可比 | 无 | 0.5 |
 
@@ -134,12 +134,12 @@
 
 | 组 | 配置 | 预期 | 目的 |
 |---|---|---|---|
-| **G-A（三前置全开）** | tile 预渲染 ✅ + `VISION_R=3` ✅ + L1 增量 ✅ | P95 5–6ms，达标 | 验证基线达标 |
+| **G-A（三前置全开）** | tile 预渲染 ✅ + `VISION_R=2`（当前值，上限 3）✅ + L1 增量 ✅ | P95 5–6ms（R=3 基线），达标（R=2 更省） | 验证基线达标 |
 | **G-B1（缺 tile 预渲染）** | tile 预渲染 ❌（直绘线段） | 预期 9–11ms，超标 | 验证「缺一则超标」结论① |
 | **G-B2（缺 R≤3）** | `VISION_R=5`（81 格） | 预期 8–9ms，超标 | 验证结论②（R=5 明确超标） |
 | **G-B3（缺 L1 增量）** | L1 全量重烘焙（跨格 `lastDirtyCount=169`） | 预期 9–11ms，超标 | 验证结论③（脏格数=169 即代理失败） |
 
-> 控制清单 F 组四条 CI 代理断言即为本尖峰的**自动守门**：G-B3 必然使 `lastDirtyCount<=40` 失败、G-B2 使 `VISION_R===3` 失败、`draw-cell` 路径 API 0 命中守卫 tile 预渲染不被绕过——它们能拦截"有人把增量写成全量""有人绕过 tile 预渲染"类回归，**但不能替代真机实测**。
+> 控制清单 F 组四条 CI 代理断言即为本尖峰的**自动守门**：G-B3 必然使 `lastDirtyCount<=40` 失败、G-B2 使 `VISION_R===2（当前值，上限 3，缩小不在禁止范围）` 失败、`draw-cell` 路径 API 0 命中守卫 tile 预渲染不被绕过——它们能拦截"有人把增量写成全量""有人绕过 tile 预渲染"类回归，**但不能替代真机实测**。
 
 ### 2.3 超标时的产品级决策选项（非工程单方面吸收）
 
@@ -165,7 +165,7 @@
 |---|---|---|
 | **DQ3** 禁 `Math.random` | `[AUTO]` | `tests/ci-gates/dq3-*.test.ts` + 构建期 `grep` 脚本（E0-1①） |
 | **W4** 无来源分支 | `[AUTO]` | 构建期 `grep isGenerated\|\.source\b\|source ==` = 0（E0-1 扩展） |
-| **性能三前置** | `[AUTO]` 代理 | ① `lastDirtyCount<=40`；② `VISION_R===3`；③ `tileAtlasReady` 早于首帧；④ `draw-cell.ts` 无路径 API（E0-1 ③④ + E2 单测） |
+| **性能三前置** | `[AUTO]` 代理 | ① `lastDirtyCount<=40`；② `VISION_R===2（当前值，上限 3，缩小不在禁止范围）`；③ `tileAtlasReady` 早于首帧；④ `draw-cell.ts` 无路径 API（E0-1 ③④ + E2 单测） |
 | **W1** 段切分单点 | `[AUTO]` | `grep "function splitSegments"/"function countBacktrackSegments"` 各仅 1 处（E1-5） |
 | **Q4** 星级=G3 | `[AUTO]` | `tests/integration` 交叉断言（E1-6） |
 
@@ -184,7 +184,7 @@
 | `cellRenderState` | GDD① §4.7 / 架构 §4.2 | E2-2 唯一实现（V6），含 `WALL_MEMORY` 细化（M-3） |
 | `VISION_R` | 架构 §7 / 控制清单 F 组 | E0-3 常量=3（M5 不可改大）；E2 尖峰 R=5 对照 |
 | `Level`（单点定义） | ADR-02 / GDD② §3.1 | E1-1 全局唯一，无来源字段（W4） |
-| `VISION_R===3` 常量断言 | 控制清单 F 组 | E0-1② CI 代理 |
+| `VISION_R===2（当前值，上限 3，缩小不在禁止范围）` 常量断言 | 控制清单 F 组 | E0-1② CI 代理 |
 | `draw-cell` 无路径 API | 控制清单 F 组 | E0-1④ / E2-2 单格仅 `drawImage` |
 
 > 所有 Story 的"验收口径"均回指具体上游条目编号（W1/W2/W4/W5/W6、V2/V3/V5/V6/V7/V8、Q1–Q4、C1-C3、DQ3/DQ7、D9/D11、M2/M5、ADR-01~04、GDD②/③/④/⑤/⑥），确保 Phase 5 实现与验收可逐条核对，无新增未定义术语。

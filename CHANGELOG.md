@@ -60,8 +60,8 @@
 
 ### 选关二维网格化（`d99439d`）
 - 反馈：主线 24 关后只能按 ←/→ 逐关移动，选择太慢。
-- 新增 `src/ui/level-grid.ts`：纯函数 `moveSelection(current, dir, maxLevel, cols)` + `MAIN_SEL_COLS = 6` + `gridRowCount()`（无 DOM、无副作用）。
-- `src/main.ts` 选关覆盖层改为 **4 行 × 6 列**（24 整除无残缺行）：**←/→ 行内移动，↑/↓ 一次跨 6 关**。
+- 新增 `src/ui/level-grid.ts`：纯函数 `moveSelection(current, dir, maxLevel, cols)` + `MAIN_SEL_COLS = 5` + `gridRowCount()`（无 DOM、无副作用）。
+- `src/main.ts` 选关覆盖层改为 **5 列 × 5 行**（24 = 5×4 + 4，最后一行残 4，残缺在底部不夹心）：**←/→ 行内移动，↑/↓ 一次跨 5 关**。
 - 每日分区仍以 `1`/`2` 数字键独立进入，未纳入网格。
 - 新增 `tests/unit/level-grid.test.ts`（10 用例，含最高解锁关以下的钳制）。
 
@@ -76,6 +76,12 @@
 ### 性能基准对齐难度上限
 - `tests/ci-gates/perf-budget.test.ts` 最坏情况由 `main-12`（双锁 2门2钥匙）改为 `main-24`（三锁 3门3钥匙），
   使帧预算门禁真正覆盖内容天花板一档（原为发布 QA 标记的覆盖缺口）。
+
+### 选关列数 6→5（UX 微调）
+- 反馈：6 列一行 24 关视觉偏挤，且 4+1+5+1+5+1 出现多次单孤儿行（截图证据）。
+- `src/ui/level-grid.ts` `MAIN_SEL_COLS`：6 → 5。`src/main.ts` 选关态、键盘导航（↑/↓ 一次跨 5 关）均通过常量引用，**无需改 main.ts**。
+- 布局：24 = 5×4 + 4 → 5 行；前 4 行各 5 关、最后 1 行 4 关（21–24），残缺行在底部不夹心。
+- 单测：补全 `tests/unit/level-grid.test.ts`（10 → 12 用例），新增强断言"最后一行残 4"与 `gridRowCount(7,5)===2`。
 
 ### 字号三档 U5（可访问性 Standard 补齐）
 - 新增设置项 `uiScale`：1（标准）/ 1.25（大）/ 1.5（特大）；设置面板按 **<kbd>T</kbd>** 循环切换并持久化。

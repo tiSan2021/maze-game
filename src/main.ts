@@ -200,7 +200,7 @@ function hideOverlay(): void {
 
 function menuHtml(): string {
   const daily = app.canShowDaily() ? '（每日分区已解锁）' : '';
-  return `<h1>迷宫闯关</h1><div>迷宫闯关 · v0.5.0${daily}</div><div class="hint">按 <kbd>Enter</kbd> 开始 · <kbd>S</kbd> 设置</div>`;
+  return `<h1>迷宫闯关</h1><div>迷宫闯关 · v0.6.0${daily}</div><div class="hint">按 <kbd>Enter</kbd> 开始 · <kbd>S</kbd> 设置</div>`;
 }
 // 可访问性设置面板（E6-3）：只暴露「关闭即不丢信息」的开关，覆盖于 MENU / PAUSED 之上。
 // 设计底线：F5 迷雾关→复用 BAKED 路径（不改 visible/visited/星级）；M2 动效关→装饰动效消失但信息仍可见。

@@ -29,7 +29,7 @@ export interface TouchControls {
 /** 滑动判定阈值（client 像素差），小于此视为点按、不移动 */
 const SWIPE_THRESHOLD = 24;
 
-function isTouchDevice(): boolean {
+export function isTouchDevice(): boolean {
   return (
     'ontouchstart' in window ||
     navigator.maxTouchPoints > 0 ||
@@ -129,8 +129,10 @@ export function mountTouchControls(opts: TouchControlsOptions): TouchControls {
   pauseBtn.addEventListener('click', firePause);
   container.appendChild(pauseBtn);
 
-  // 按游戏状态切换显隐（非 PLAYING 全部隐藏，避免误触）
-  let visible = false;
+  // 按游戏状态切换显隐（非 PLAYING 全部隐藏，避免误触）。
+  // 注意：初始用 null，确保首帧 setPlaying(false) 一定执行隐藏（否则 early-return 会让
+  // dpad 残留 CSS 的 display:grid，在首页/选关误显示方向键）。
+  let visible: boolean | null = null;
   const setPlaying = (playing: boolean) => {
     if (playing === visible) return;
     visible = playing;

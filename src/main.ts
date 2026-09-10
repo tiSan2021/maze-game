@@ -12,7 +12,7 @@ import { computeVisibility } from './sim/visibility';
 import type { EntityView } from './render/sprites';
 import { key } from './util/grid';
 import { KeyboardInput, dirOfKey } from './input/keyboard';
-import { mountTouchControls } from './input/touch';
+import { mountTouchControls, isTouchDevice } from './input/touch';
 import { type StorageLike, MAIN_LEVEL_COUNT, bestOf, mainLevelId } from './sim/progress';
 import { renderSettlementHtml } from './ui/settlement';
 import { moveSelection, MAIN_SEL_COLS } from './ui/level-grid';
@@ -222,6 +222,9 @@ function handleOverlayAction(action: string | undefined, ds: DOMStringMap): void
     case 'lvl-back':
       app.goToMenu();
       break;
+    case 'lvl-back':
+      app.goToMenu();
+      break;
     case 'set-resume':
       app.resume();
       break;
@@ -330,10 +333,16 @@ function syncTouchPlaying(): void {
   }
 }
 
+// 触屏优先提示：移动端不显示 Enter/Esc 等键盘键；桌面端附带按键说明
+const IS_TOUCH = isTouchDevice();
+
 function menuHtml(): string {
   const daily = app.canShowDaily() ? '（每日分区已解锁）' : '';
+  const hint = IS_TOUCH
+    ? '点击「开始游戏」进入 · 点击「设置」调整'
+    : '点击「开始游戏」或按 <kbd>Enter</kbd> 进入 · 点击「设置」或按 <kbd>S</kbd> 调整';
   return `<h1>${APP_NAME}</h1><div>${VERSION_LABEL}${daily}</div>
-    <div class="hint">按 <kbd>Enter</kbd> 开始 · <kbd>S</kbd> 设置</div>
+    <div class="hint">${hint}</div>
     <div style="margin-top:14px">
       <button type="button" class="ov-btn" data-action="menu-start">开始游戏</button>
       <button type="button" class="ov-btn alt" data-action="menu-settings">设置</button>
@@ -354,7 +363,7 @@ function settingsHtml(): string {
       <div>字号（U5）：<button type="button" class="ov-btn alt" data-action="settings-t">切换 · 当前 <b>${ui}</b></button></div>
       <div>音效：<button type="button" class="ov-btn alt" data-action="settings-x">切换 · 当前 <b>${sound}</b></button></div>
     </div>
-    <div class="hint">两项关闭后信息仍完整可见（图案填充 / 钥匙双编码 / 对比度不依赖它们）。<kbd>Esc</kbd> 返回</div>
+    <div class="hint">关闭后信息仍完整可见（图案填充 / 钥匙双编码 / 对比度不依赖它们）。${IS_TOUCH ? '点击「返回」关闭' : '点击「返回」或按 <kbd>Esc</kbd> 关闭'}</div>
     <button type="button" class="ov-btn" data-action="settings-close" style="margin-top:12px">返回</button>`;
 }
 function levelLabel(): string {
@@ -414,11 +423,15 @@ function selectHtml(): string {
          <div class="hint">${d.todayKey} · UTC 全球同题</div>`
       : '';
 
-  return `<h1>关卡选择</h1><div style="max-width:600px;line-height:1.35">${rowHtml.join('')}</div>${dailyBlock}<div class="hint"><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd> 选关 · <kbd>Enter</kbd> 进入 · <kbd>Esc</kbd> 返回主菜单（也可直接点选关卡）</div>`;
+  const hint = IS_TOUCH
+    ? '点击关卡进入 · 点击下方「返回主菜单」回到首页'
+    : '方向键选关 · <kbd>Enter</kbd> 进入 · <kbd>Esc</kbd> 返回主菜单（也可直接点选关卡）';
+  const backBtn = `<button type="button" class="ov-btn alt" data-action="lvl-back" style="margin-top:10px">返回主菜单</button>`;
+  return `<h1>关卡选择</h1><div style="max-width:600px;line-height:1.35">${rowHtml.join('')}</div>${dailyBlock}<div class="hint">${hint}</div>${backBtn}`;
 }
 function pauseHtml(): string {
   return `<h1>已暂停</h1>
-    <div class="hint"><kbd>Esc</kbd>/<kbd>Enter</kbd> 继续 · <kbd>R</kbd> 重开 · <kbd>Q</kbd> 返回选关</div>
+    <div class="hint">${IS_TOUCH ? '点击「继续」/「重开」/「返回选关」' : '<kbd>Esc</kbd>/<kbd>Enter</kbd> 继续 · <kbd>R</kbd> 重开 · <kbd>Q</kbd> 返回选关'}</div>
     <div style="margin-top:14px">
       <button type="button" class="ov-btn" data-action="set-resume">继续</button>
       <button type="button" class="ov-btn alt" data-action="set-restart">重开</button>

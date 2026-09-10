@@ -222,9 +222,6 @@ function handleOverlayAction(action: string | undefined, ds: DOMStringMap): void
     case 'lvl-back':
       app.goToMenu();
       break;
-    case 'lvl-back':
-      app.goToMenu();
-      break;
     case 'set-resume':
       app.resume();
       break;

@@ -5,7 +5,7 @@
 
 import type { Dir, GridCell, Level, LevelMeta, Tier, Vec2, KeyColor } from '../core/types';
 import { mulberry32, deriveAttemptSeed } from '../core/rng';
-import { inBounds, key, neighbor, ORTHO_DIRS } from '../util/grid';
+import { inBounds, key, neighbor, ORTHO_DIRS, chebyshev } from '../util/grid';
 import { computeLockDepth, UNSOLVABLE } from '../sim/lockkey';
 import { countDeadEndBranches } from '../sim/deadends';
 import { replay } from './replay';
@@ -170,11 +170,40 @@ function findChokePoints(
   return chokes;
 }
 
+/**
+ * 随机出口（迷雾关需求：出口不再钉死在底部右角）。在内部格中随机选一个作为出口：
+ *  - 排除起点 (1,1)、底部左角 (1,gridSize-2)、底部右角 (gridSize-2,gridSize-2)；
+ *  - 距起点最小切比雪夫距离 ≥4，保证迷宫有意义且 DFS 易命中长度档位（过近会让回头路退化）；
+ *  - 全程走注入 PRNG（DQ3），确定性：同 (seed,tier,version) 出口固定，且不影响 G4 逐字节可比。
+ */
+function randomExit(rng: () => number, gridSize: number, start: Vec2): Vec2 {
+  const interior = gridSize - 2;
+  const minDist = 4;
+  const forbidden = new Set<string>([
+    `${start.x},${start.y}`, // 起点
+    `1,${interior}`, // 底部左角
+    `${interior},${interior}`, // 底部右角
+  ]);
+  const candidates: Vec2[] = [];
+  for (let y = 1; y <= interior; y++) {
+    for (let x = 1; x <= interior; x++) {
+      const k = `${x},${y}`;
+      if (forbidden.has(k)) continue;
+      if (chebyshev(start, { x, y }) < minDist) continue;
+      candidates.push({ x, y });
+    }
+  }
+  // gridSize≥9 时内部 7×7 起，排除后仍恒有大量候选；兜底取最远角防 rng 异常
+  const pick = candidates[Math.floor(rng() * candidates.length)] ?? { x: interior, y: 1 };
+  return { ...pick };
+}
+
 /** 构造单关（步骤 1-3）。任一内部违例返回 null（步骤 4 外层负责换种子/降级/兜底）。 */
 function construct(rng: () => number, params: ConstructParams, request: GenerateRequest): Level | null {
   const { gridSize } = params;
   const start: Vec2 = { x: 1, y: 1 };
-  const exit: Vec2 = { x: gridSize - 2, y: gridSize - 2 };
+  // 出口随机（迷雾关需求），排除底部左右两角、起点，且离起点足够远
+  const exit = randomExit(rng, gridSize, start);
 
   // 步骤 1：构造自避主干（DFS 可能单发失败，内部重试若干次以稳产，避免频繁回退兜底）
   let dirs: Dir[] | null = null;

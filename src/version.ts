@@ -8,7 +8,7 @@
 export const APP_NAME = '迷宫闯关';
 
 /** 语义化版本号，不含前缀 "v" */
-export const VERSION = '0.6.1';
+export const VERSION = '0.7.0';
 
 /** 菜单/HUD 等处的完整版本标签，如「迷宫闯关 · v0.6.1」 */
 export const VERSION_LABEL = `${APP_NAME} · v${VERSION}`;

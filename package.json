@@ -1,9 +1,9 @@
 {
   "name": "maze-game",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "private": true,
   "type": "module",
-  "description": "俯视角 2D 网格迷宫 · 锁钥寻路闯关（Canvas 2D + TypeScript），v0.6.1（24 关主线 / 三锁难度上限 / 选关二维网格 / 前8关难度提升 / 可访问性 U5 字号三档 / L4-L8 布局去重）",
+  "description": "俯视角 2D 网格迷宫 · 锁钥寻路闯关（Canvas 2D + TypeScript），v0.7.0（移动端适配 / 24 关主线 / 三锁难度上限 / 选关二维网格 / 前8关难度提升 / 可访问性 U5 字号三档 / L4-L8 布局去重）",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

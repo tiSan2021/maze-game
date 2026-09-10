@@ -3,7 +3,17 @@
 // mountHud 才触碰 DOM，便于测试与可访问性镜像。
 
 import { HUD_H } from '../core/constants/metrics';
-import { KEY_COLORS } from '../core/constants/palette';
+import {
+  KEY_COLORS,
+  PAPER,
+  PAPER_WALKED,
+  GRID_VIEW,
+  GRID_MEMORY,
+  GRID_UNKNOWN,
+  INK,
+  UI_BORDER,
+  UI_TEXT,
+} from '../core/constants/palette';
 import { formatDuration } from '../ui/format';
 import type { KeyColor } from '../core/types';
 
@@ -49,11 +59,22 @@ export function renderHudHtml(m: HudModel): string {
   // 操作提示常驻（ux-spec §2.1 / §2.2 右(常驻)），次要色复用既有图例色 #A89878
   const hint = `<span style="color:#A89878">Z 撤销 · R 重开 · Esc 返回</span>`;
 
+  // 迷雾四态迷你图例（U4 / ux-spec §2.3 / art-bible v2）：色块直绘实际细胞视觉
+  // ——旧版直接套 GRID_* 线色做 ■，与 HUD 底 (#EFEADC) 对比 <1.7:1，几近不可见；
+  // 现改为 12×12 CSS 色块，背景用 PAPER/PAPER_WALKED+网格/铅笔痕还原细胞，靠 UI_BORDER 边框区分。
+  // 见过：PAPER + GRID_VIEW 网格（=VIEW_UNWALKED 视野内未踩）
+  // 走过：PAPER_WALKED + INK 45° 铅笔痕 + GRID_MEMORY 网格（=VIEW_WALKED 已踩 + 笔迹）
+  // 未知：PAPER + GRID_UNKNOWN 边框（=UNKNOWN 未探索；背景同 HUD，必须靠边框区分）
+  const seenSwatch = `<span style="display:inline-block;width:12px;height:12px;vertical-align:middle;border:1px solid ${UI_BORDER};background:${PAPER};background-image:linear-gradient(to right,${GRID_VIEW} 1px,transparent 1px),linear-gradient(to bottom,${GRID_VIEW} 1px,transparent 1px);background-size:5px 5px"></span>`;
+  const walkedSwatch = `<span style="display:inline-block;width:12px;height:12px;vertical-align:middle;border:1px solid ${UI_BORDER};background:${PAPER_WALKED};background-image:repeating-linear-gradient(45deg,transparent 0,transparent 3px,${INK} 3px,${INK} 4px),linear-gradient(to right,${GRID_MEMORY} 1px,transparent 1px),linear-gradient(to bottom,${GRID_MEMORY} 1px,transparent 1px);background-size:auto,5px 5px,5px 5px"></span>`;
+  const unknownSwatch = `<span style="display:inline-block;width:12px;height:12px;vertical-align:middle;border:1px solid ${GRID_UNKNOWN};background:${PAPER}"></span>`;
   const legend = m.fog
-    ? `<span style="margin-left:12px;font-size:calc(11px * var(--ui-scale));">图例:` +
-      `<span style="color:#A89878">■见过</span> ` +
-      `<span style="color:#CFC5B0">■走过</span> ` +
-      `<span style="color:#E4DCCE;border:1px solid #999">■未知</span></span>`
+    ? `<span style="margin-left:12px;font-size:calc(11px * var(--ui-scale));display:inline-flex;align-items:center;gap:3px;">` +
+      `<span style="color:${UI_TEXT}">图例</span>` +
+      `${seenSwatch}<span style="color:${UI_TEXT}">见过</span>` +
+      `${walkedSwatch}<span style="color:${UI_TEXT}">走过</span>` +
+      `${unknownSwatch}<span style="color:${UI_TEXT}">未知</span>` +
+      `</span>`
     : '';
 
   return (
